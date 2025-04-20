@@ -3,11 +3,11 @@ this script extracts information from a full genebank file
 and outputs a fasta file with the header information you define
 to be extracted. 
 """
-
 from Bio import SeqIO
+print("Biopython works!")
 
 # === Settings ===
-input_file = "your_file.gb"    # Replace with your .gb or .gbff file
+input_file = "/Users/sophieporak/Library/CloudStorage/Box-Box/DeRisi/Arenavirus/protein sequences/BioProject PRJNA254017 NCBI Lassa virus sequences/gene_bank_full.gb"    
 output_file = "proteins_with_metadata.fasta"
 
 with open(output_file, "w") as out_f:
