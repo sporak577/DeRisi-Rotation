@@ -245,10 +245,6 @@ for record in SeqIO.parse(fasta_file, "fasta"):
 
 
     for i, peptide in enumerate(tiled_peptides):
-
-        # Create amino acid FASTA entry (for validation)
-        aa_rec = SeqRecord(Seq(peptide))
-        aa_records_out.append(aa_rec)
         
         na_seq = aa2na(peptide) #codon optimization
         na_seq_clean = replace_restriction_sites(na_seq) or na_seq
@@ -263,6 +259,10 @@ for record in SeqIO.parse(fasta_file, "fasta"):
         # Create SeqRecord, wraps the nucleotide sequence string into a Seq object. id = header means becomes the identifier in the FASTA, the part right after >. 
         #description=desc becomes the rest of the FASTA header line, holding metadata like protein name, virus, location etc. 
         rec = SeqRecord(Seq(na_seq_clean), id=header, description=desc)
+
+        # Create amino acid FASTA entry (for validation)
+        aa_rec = SeqRecord(Seq(peptide), id=header, description=desc) 
+        aa_records_out.append(aa_rec)
 
         records_out.append(rec)
 
