@@ -244,14 +244,12 @@ for record in SeqIO.parse(fasta_file, "fasta"):
         na_seq = aa2na(peptide) #codon optimization
         na_seq_clean = replace_restriction_sites(na_seq) or na_seq
 
-        # check if the tile s full or truncated. 
-        status = "full-length" if len(peptide) == 48 else "truncated"
         
         # Fasta header ID
         header = f"{record.id}_{i+1}"
 
         # Metadata in the record.description
-        desc = f"{record.description} | tile {i+1} of {len(tiled_peptides)} | {status}"
+        desc = f"{record.description} | tile {i+1} of {len(tiled_peptides)}"
 
         # Create SeqRecord, wraps the nucleotide sequence string into a Seq object. id = header means becomes the identifier in the FASTA, the part right after >. 
         #description=desc becomes the rest of the FASTA header line, holding metadata like protein name, virus, location etc. 
