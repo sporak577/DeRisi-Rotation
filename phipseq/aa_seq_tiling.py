@@ -7,6 +7,8 @@ This script will read in a fasta file of protein sequences and
 5) write to output FASTA
 
 it will keep metadata in FASTA headers of generated tiles
+
+it will also write an output FASTA of generated peptides before peptide processing!
 '''
 
 from Bio import SeqIO
