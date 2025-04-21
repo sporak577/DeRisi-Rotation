@@ -1,16 +1,26 @@
 '''
 This script will read in a fasta file of protein sequences and
 1) tile them to 48aa, with 24 aa overlap
-2) collapses on sequence identity
+2) deduplicate & collapses on sequence identity (if wanted)
 3) codon optimize 
 4) purge restriction sites by using synonymous mutations
+5) write to output FASTA
+
+it will keep metadata in FASTA headers 
 '''
 
 from Bio import SeqIO
+from Bio.SeqRecord import SeqRecord
+from Bio.Seq import Seq
+
 import pandas as pd
 import numpy as np
 import random
 
+fasta_file = "my_protein_file.fasta" #update path 
+output_fasta = "tiled_output_deduped.fasta"
+
+# ===== Codon Optimization to E.Coli ======
 
 AA2NA = {
 "A": list("GCT,GCC,GCA,GCG".split(",")),
@@ -34,6 +44,7 @@ AA2NA = {
 "Y": list("TAT,TAC".split(",")),
 "V": list("GTT,GTC,GTA,GTG".split(",")),
 "*": list("TAA,TGA,TAG".split(","))}
+
 
 NA2AA = {'GCT': 'A',
  'GCC': 'A',
@@ -134,14 +145,6 @@ def tiling(seq, tile_len=48, overlap=24):
 
 
 
-
-
-
-
-def collapse():
-
-
-
 def aa2na(seq):
     """
     kept from Haleigh Miller 
@@ -222,4 +225,32 @@ def replace_restriction_sites(seq):
         return None
             
 
-   
+# ===== Main Loop =====
+
+seen_proteins = set()
+records_out = []
+
+for record in SeqIO.parse(fasta_file, "fasta"):
+    aa_seq = str(record.seq)
+
+    # skip duplicates early
+    if aa_seq in seen_proteins: 
+        continue  #skips the rest of this loop iteration (don't tile or process) and move to the next one
+    seen_proteins.add(aa_seq)
+
+    tiled_peptides = tiling(aa_seq)
+
+    for i, peptide in enumerate(tiled_peptides):
+        na_seq = aa2na(peptide) #codon optimization
+        na_seq_clean = replace_restriction_sites(na_seq) or na_seq
+        print(f">tile_{record_id}_{i+1}")
+        print(na_seq_clean)
+
+"""
+example
+
+seq = "MKTAYIAKQRQISFVKSHFSRQDILDLWIYHTQGYFPDWQNYTPGPGIRYPLKF"
+tiles = tiling(seq)
+for t in tiles:
+    print(t)
+"""
