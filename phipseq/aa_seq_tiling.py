@@ -18,7 +18,9 @@ import numpy as np
 import random
 
 fasta_file = "test.fasta" #update path 
-output_fasta = "test_tiled_output_deduped_.fasta"
+output_tiling = 'test_tiled_aa_output.fasta'
+output_fasta = "test_tiled_na_output_deduped.fasta"
+
 
 # ===== Codon Optimization to E.Coli ======
 
@@ -229,6 +231,7 @@ def replace_restriction_sites(seq):
 
 seen_proteins = set()
 records_out = []
+aa_records_out = []
 
 for record in SeqIO.parse(fasta_file, "fasta"):
     aa_seq = str(record.seq)
@@ -240,7 +243,13 @@ for record in SeqIO.parse(fasta_file, "fasta"):
 
     tiled_peptides = tiling(aa_seq)
 
+
     for i, peptide in enumerate(tiled_peptides):
+
+        # Create amino acid FASTA entry (for validation)
+        aa_rec = SeqRecord(Seq(peptide))
+        aa_records_out.append(aa_rec)
+        
         na_seq = aa2na(peptide) #codon optimization
         na_seq_clean = replace_restriction_sites(na_seq) or na_seq
 
@@ -257,10 +266,16 @@ for record in SeqIO.parse(fasta_file, "fasta"):
 
         records_out.append(rec)
 
+        
+
 
 with open(output_fasta, "w") as out_f:
     SeqIO.write(records_out, out_f, "fasta")
 
 print(f" Done! {len(records_out)} tiles written to '{output_fasta}")
 
+with open(output_tiling, "w") as out_aa:
+    SeqIO.write(aa_records_out, out_aa, "fasta")
+
+print(f"Done! {len(aa_records_out)} tiles written to '{output_tiling}")
 
