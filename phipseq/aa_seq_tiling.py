@@ -6,7 +6,7 @@ This script will read in a fasta file of protein sequences and
 4) purge restriction sites by using synonymous mutations
 5) write to output FASTA
 
-it will keep metadata in FASTA headers 
+it will keep metadata in FASTA headers of generated tiles
 '''
 
 from Bio import SeqIO
@@ -243,8 +243,23 @@ for record in SeqIO.parse(fasta_file, "fasta"):
     for i, peptide in enumerate(tiled_peptides):
         na_seq = aa2na(peptide) #codon optimization
         na_seq_clean = replace_restriction_sites(na_seq) or na_seq
-        print(f">tile_{record_id}_{i+1}")
-        print(na_seq_clean)
+        
+        # Fasta header ID
+        header = f"{record.id}_{i+1}"
+
+        # Metadata in the record.description
+        desc = f"{record.description} | tile {i+1} of {len(tiled_peptides)}"
+
+        # Create SeqRecord
+        rec = SeqRecord(Seq(na_seq_clean), id=header, description=desc)
+
+        records_out.append(rec)
+
+
+with open(output_fasta, "w") as out_f:
+    seqIO.write(records_out, out_f, "fasta")
+
+print(f" Done! {len(records_out)} tiles written to '{output_fasta}")
 
 """
 example
