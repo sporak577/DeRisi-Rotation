@@ -17,8 +17,8 @@ import pandas as pd
 import numpy as np
 import random
 
-fasta_file = "my_protein_file.fasta" #update path 
-output_fasta = "tiled_output_deduped.fasta"
+fasta_file = "test.fasta" #update path 
+output_fasta = "test_tiled_output_deduped_.fasta"
 
 # ===== Codon Optimization to E.Coli ======
 
@@ -243,29 +243,26 @@ for record in SeqIO.parse(fasta_file, "fasta"):
     for i, peptide in enumerate(tiled_peptides):
         na_seq = aa2na(peptide) #codon optimization
         na_seq_clean = replace_restriction_sites(na_seq) or na_seq
+
+        # check if the tile s full or truncated. 
+        status = "full-length" if len(peptide) == 48 else "truncated"
         
         # Fasta header ID
         header = f"{record.id}_{i+1}"
 
         # Metadata in the record.description
-        desc = f"{record.description} | tile {i+1} of {len(tiled_peptides)}"
+        desc = f"{record.description} | tile {i+1} of {len(tiled_peptides)} | {status}"
 
-        # Create SeqRecord
+        # Create SeqRecord, wraps the nucleotide sequence string into a Seq object. id = header means becomes the identifier in the FASTA, the part right after >. 
+        #description=desc becomes the rest of the FASTA header line, holding metadata like protein name, virus, location etc. 
         rec = SeqRecord(Seq(na_seq_clean), id=header, description=desc)
 
         records_out.append(rec)
 
 
 with open(output_fasta, "w") as out_f:
-    seqIO.write(records_out, out_f, "fasta")
+    SeqIO.write(records_out, out_f, "fasta")
 
 print(f" Done! {len(records_out)} tiles written to '{output_fasta}")
 
-"""
-example
 
-seq = "MKTAYIAKQRQISFVKSHFSRQDILDLWIYHTQGYFPDWQNYTPGPGIRYPLKF"
-tiles = tiling(seq)
-for t in tiles:
-    print(t)
-"""
