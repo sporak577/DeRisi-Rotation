@@ -25,7 +25,7 @@ output_tiling = '/Users/sophieporak/Documents/DeRisi_data /tiled_aa_arenavirus_m
 output_fasta = "/Users/sophieporak/Documents/DeRisi_data /tiled_nt_arenavirus_merged.fasta"
 
 output_duplicate_proteins = "/Users/sophieporak/Documents/DeRisi_data /duplicate_arenavirus_proteins.fasta"
-output_X_tiles = '/Users/sophieporak/Documents/DeRisi_data /tiled_aa_arenavrus_with_X_character.fasta'
+output_X_tiles = '/Users/sophieporak/Documents/DeRisi_data /tiled_aa_arenavirus_with_X_character.fasta'
 output_duplicate_tiles = '/Users/sophieporak/Documents/DeRisi_data /duplicate_aa_arenavrus_tiles.fasta'
 
 
