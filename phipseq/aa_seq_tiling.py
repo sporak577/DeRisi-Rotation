@@ -2,6 +2,7 @@
 This script will read in a fasta file of protein sequences and
 1) deduplicate 
 2) tile them to 48aa, with 24 aa overlap
+2.2) deduplicate again on tile level
 3) codon optimize 
 4) purge restriction sites by using synonymous mutations
 5) write to output FASTA
@@ -19,9 +20,9 @@ import pandas as pd
 import numpy as np
 import random
 
-fasta_file = "test.fasta" #update path 
-output_tiling = 'test_tiled_aa_output.fasta'
-output_fasta = "test_tiled_na_output_deduped.fasta"
+fasta_file = "/Users/sophieporak/Documents/DeRisi_data /arenavirus_merged.fasta" #update path 
+output_tiling = '/Users/sophieporak/Documents/DeRisi_data /tiled_aa_arenavirus_merged.fasta'
+output_fasta = "/Users/sophieporak/Documents/DeRisi_data /tiled_nt_arenavirus_merged.fasta"
 
 
 # ===== Codon Optimization to E.Coli, copied from Haleigh Miller ======
@@ -234,6 +235,8 @@ def replace_restriction_sites(seq):
 seen_proteins = set()
 records_out = []
 aa_records_out = []
+seen_peptides = set()
+duplicate_count = 0
 
 for record in SeqIO.parse(fasta_file, "fasta"):
     aa_seq = str(record.seq)
@@ -248,6 +251,11 @@ for record in SeqIO.parse(fasta_file, "fasta"):
 
     for i, peptide in enumerate(tiled_peptides):
         
+        if peptide in seen_peptides: 
+            duplicate_count += 1
+            continue 
+        seen_peptides.add(peptide)
+
         na_seq = aa2na(peptide) #codon optimization
         na_seq_clean = replace_restriction_sites(na_seq) or na_seq
 
@@ -281,3 +289,4 @@ with open(output_tiling, "w") as out_aa:
 
 print(f"Done! {len(aa_records_out)} tiles written to '{output_tiling}")
 
+print(f"Skipped {duplicate_count} duplicate tiled peptides")
