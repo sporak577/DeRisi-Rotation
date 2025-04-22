@@ -1,8 +1,8 @@
 '''
 This script will read in a fasta file of protein sequences and
-1) deduplicate 
+1) deduplicate -> save in fasta file
 2) tile them to 48aa, with 24 aa overlap
-2.2) deduplicate again on tile level & get rid of tiles containing X character -> save header in fasta
+2.2) deduplicate again on tile level & get rid of tiles containing X character -> save header and sequence in fasta file
 3) codon optimize 
 4) purge restriction sites by using synonymous mutations
 5) write to output FASTA
@@ -22,9 +22,12 @@ import random
 
 fasta_file = "/Users/sophieporak/Documents/DeRisi_data /arenavirus_merged.fasta" #update path 
 output_tiling = '/Users/sophieporak/Documents/DeRisi_data /tiled_aa_arenavirus_merged.fasta'
+output_fasta = "/Users/sophieporak/Documents/DeRisi_data /tiled_nt_arenavirus_merged.fasta"
+
+output_duplicate_proteins = "/Users/sophieporak/Documents/DeRisi_data /duplicate_arenavirus_proteins.fasta"
 output_X_tiles = '/Users/sophieporak/Documents/DeRisi_data /tiled_aa_arenavrus_with_X_character.fasta'
 output_duplicate_tiles = '/Users/sophieporak/Documents/DeRisi_data /duplicate_aa_arenavrus_with_X_character.fasta'
-output_fasta = "/Users/sophieporak/Documents/DeRisi_data /tiled_nt_arenavirus_merged.fasta"
+
 
 
 # ===== Codon Optimization to E.Coli, copied from Haleigh Miller ======
@@ -240,16 +243,21 @@ aa_records_out = []
 seen_peptides = set()
 duplicate_count = 0
 
+# full protein duplicates out
+full_protein_duplicates_out = []
+
 # detect tiles with X characters 
 tiles_with_x_out = []
 # detect duplicate tiles 
 duplicate_tiles_out = []
+
 
 for record in SeqIO.parse(fasta_file, "fasta"):
     aa_seq = str(record.seq)
 
     # skip duplicates early
     if aa_seq in seen_proteins: 
+        full_protein_duplicates_out.append(record) #save for output
         continue  #skips the rest of this loop iteration (don't tile or process) and move to the next one
     seen_proteins.add(aa_seq)
 
@@ -299,6 +307,11 @@ with open(output_tiling, "w") as out_aa:
     SeqIO.write(aa_records_out, out_aa, "fasta")
 
 print(f"Done! {len(aa_records_out)} tiles written to '{output_tiling}'")
+
+with open(output_duplicate_proteins, "w") as out_dup_prots:
+    SeqIO.write(full_protein_duplicates_out, out_dup_prots, "fasta")
+
+print(f"Skipped {len(full_protein_duplicates_out)} duplicate full-length proteins written to '{output_duplicate_proteins}'")
 
 with open(output_X_tiles, "w") as out_x:
     SeqIO.write(tiles_with_x_out, out_x, "fasta")
