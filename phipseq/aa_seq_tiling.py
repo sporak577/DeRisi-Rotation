@@ -22,8 +22,8 @@ import random
 
 fasta_file = "/Users/sophieporak/Documents/DeRisi_data /arenavirus_merged.fasta" #update path 
 output_tiling = '/Users/sophieporak/Documents/DeRisi_data /tiled_aa_arenavirus_merged.fasta'
-output_X_tiles = '/Users/sophieporak/Documents/DeRisi_data /tiled_aa_arenavrus_with_X_character'
-output_duplicate_tiles = '/Users/sophieporak/Documents/DeRisi_data /duplicate_aa_arenavrus_with_X_character'
+output_X_tiles = '/Users/sophieporak/Documents/DeRisi_data /tiled_aa_arenavrus_with_X_character.fasta'
+output_duplicate_tiles = '/Users/sophieporak/Documents/DeRisi_data /duplicate_aa_arenavrus_with_X_character.fasta'
 output_fasta = "/Users/sophieporak/Documents/DeRisi_data /tiled_nt_arenavirus_merged.fasta"
 
 
@@ -293,22 +293,22 @@ for record in SeqIO.parse(fasta_file, "fasta"):
 with open(output_fasta, "w") as out_f:
     SeqIO.write(records_out, out_f, "fasta")
 
-print(f" Done! {len(records_out)} tiles written to '{output_fasta}")
+print(f"Done! {len(records_out)} tiles written to '{output_fasta}'")
 
 with open(output_tiling, "w") as out_aa:
     SeqIO.write(aa_records_out, out_aa, "fasta")
 
-print(f"Done! {len(aa_records_out)} tiles written to '{output_tiling}")
+print(f"Done! {len(aa_records_out)} tiles written to '{output_tiling}'")
 
 with open(output_X_tiles, "w") as out_x:
     SeqIO.write(tiles_with_x_out, out_x, "fasta")
 
-print(f"Excluded {len(tiles_with_x_out)} tiles. Written to '{output_X_tiles}")
+print(f"Excluded {len(tiles_with_x_out)} tiles with X character in them. Written to '{output_X_tiles}'")
 
 with open(output_duplicate_tiles, "w") as out_dup_tiles:
-    SeqIO.write(duplicate_tiles_out, out_x, "fasta")
+    SeqIO.write(duplicate_tiles_out, out_dup_tiles, "fasta")
 
-print(f"Skipped {len(duplicate_tiles_out)} duplicate tiles written to '{output_duplicate_tiles}")
+print(f"Skipped {len(duplicate_tiles_out)} duplicate tiles written to '{output_duplicate_tiles}'")
 
 
 print(f"Skipped {duplicate_count} duplicate tiled peptides")
