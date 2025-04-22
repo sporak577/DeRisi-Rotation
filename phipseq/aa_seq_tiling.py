@@ -2,7 +2,7 @@
 This script will read in a fasta file of protein sequences and
 1) deduplicate 
 2) tile them to 48aa, with 24 aa overlap
-2.2) deduplicate again on tile level
+2.2) deduplicate again on tile level & get rid of tiles containing X character -> save header in fasta
 3) codon optimize 
 4) purge restriction sites by using synonymous mutations
 5) write to output FASTA
@@ -22,6 +22,8 @@ import random
 
 fasta_file = "/Users/sophieporak/Documents/DeRisi_data /arenavirus_merged.fasta" #update path 
 output_tiling = '/Users/sophieporak/Documents/DeRisi_data /tiled_aa_arenavirus_merged.fasta'
+output_X_tiles = '/Users/sophieporak/Documents/DeRisi_data /tiled_aa_arenavrus_with_X_character'
+output_duplicate_tiles = '/Users/sophieporak/Documents/DeRisi_data /duplicate_aa_arenavrus_with_X_character'
 output_fasta = "/Users/sophieporak/Documents/DeRisi_data /tiled_nt_arenavirus_merged.fasta"
 
 
@@ -238,6 +240,11 @@ aa_records_out = []
 seen_peptides = set()
 duplicate_count = 0
 
+# detect tiles with X characters 
+tiles_with_x_out = []
+# detect duplicate tiles 
+duplicate_tiles_out = []
+
 for record in SeqIO.parse(fasta_file, "fasta"):
     aa_seq = str(record.seq)
 
@@ -250,31 +257,35 @@ for record in SeqIO.parse(fasta_file, "fasta"):
 
 
     for i, peptide in enumerate(tiled_peptides):
-        
+        # Fasta header ID
+        header = f"{record.id}_{i+1}"
+        # Metadata in the record.description
+        desc = f"{record.description} | tile {i+1} of {len(tiled_peptides)}"
+
+        if "X" in peptide: 
+            tiles_with_x_out.append(SeqRecord(Seq(peptide), id=header, description = desc))
+            continue 
+
         if peptide in seen_peptides: 
             duplicate_count += 1
+            duplicate_tiles_out.append(SeqRecord(Seq(peptide), id=header, description = desc))
             continue 
+
         seen_peptides.add(peptide)
 
         na_seq = aa2na(peptide) #codon optimization
         na_seq_clean = replace_restriction_sites(na_seq) or na_seq
 
         
-        # Fasta header ID
-        header = f"{record.id}_{i+1}"
-
-        # Metadata in the record.description
-        desc = f"{record.description} | tile {i+1} of {len(tiled_peptides)}"
 
         # Create SeqRecord, wraps the nucleotide sequence string into a Seq object. id = header means becomes the identifier in the FASTA, the part right after >. 
         #description=desc becomes the rest of the FASTA header line, holding metadata like protein name, virus, location etc. 
         rec = SeqRecord(Seq(na_seq_clean), id=header, description=desc)
-
         # Create amino acid FASTA entry (for validation)
         aa_rec = SeqRecord(Seq(peptide), id=header, description=desc) 
-        aa_records_out.append(aa_rec)
 
         records_out.append(rec)
+        aa_records_out.append(aa_rec)
 
         
 
@@ -288,5 +299,16 @@ with open(output_tiling, "w") as out_aa:
     SeqIO.write(aa_records_out, out_aa, "fasta")
 
 print(f"Done! {len(aa_records_out)} tiles written to '{output_tiling}")
+
+with open(output_X_tiles, "w") as out_x:
+    SeqIO.write(tiles_with_x_out, out_x, "fasta")
+
+print(f"Excluded {len(tiles_with_x_out)} tiles. Written to '{output_X_tiles}")
+
+with open(output_duplicate_tiles, "w") as out_dup_tiles:
+    SeqIO.write(duplicate_tiles_out, out_x, "fasta")
+
+print(f"Skipped {len(duplicate_tiles_out)} duplicate tiles written to '{output_duplicate_tiles}")
+
 
 print(f"Skipped {duplicate_count} duplicate tiled peptides")
