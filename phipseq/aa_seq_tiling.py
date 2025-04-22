@@ -301,12 +301,12 @@ for record in SeqIO.parse(fasta_file, "fasta"):
 with open(output_fasta, "w") as out_f:
     SeqIO.write(records_out, out_f, "fasta")
 
-print(f"Done! {len(records_out)} tiles written to '{output_fasta}'")
+print(f"Done! {len(records_out)} unique tiles written to '{output_fasta}'")
 
 with open(output_tiling, "w") as out_aa:
     SeqIO.write(aa_records_out, out_aa, "fasta")
 
-print(f"Done! {len(aa_records_out)} tiles written to '{output_tiling}'")
+print(f"Done! {len(aa_records_out)} unique tiles written to '{output_tiling}'")
 
 with open(output_duplicate_proteins, "w") as out_dup_prots:
     SeqIO.write(full_protein_duplicates_out, out_dup_prots, "fasta")
