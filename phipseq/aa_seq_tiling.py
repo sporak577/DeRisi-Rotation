@@ -24,7 +24,7 @@ output_tiling = 'test_tiled_aa_output.fasta'
 output_fasta = "test_tiled_na_output_deduped.fasta"
 
 
-# ===== Codon Optimization to E.Coli ======
+# ===== Codon Optimization to E.Coli, copied from Haleigh Miller ======
 
 AA2NA = {
 "A": list("GCT,GCC,GCA,GCG".split(",")),
