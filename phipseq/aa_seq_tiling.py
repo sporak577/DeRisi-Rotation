@@ -21,12 +21,12 @@ import numpy as np
 import random
 
 fasta_file = "/Users/sophieporak/Documents/DeRisi_data /arenavirus_merged.fasta" #update path 
-output_tiling = '/Users/sophieporak/Documents/DeRisi_data /tiled_aa_arenavirus_merged.fasta'
-output_fasta = "/Users/sophieporak/Documents/DeRisi_data /tiled_nt_arenavirus_merged.fasta"
+output_tiling = '/Users/sophieporak/Documents/DeRisi_data /arenavirus_aa_preprocess_tiles.fasta'
+output_fasta = "/Users/sophieporak/Documents/DeRisi_data /arenavirus_nt_tiles.fasta"
 
-output_duplicate_proteins = "/Users/sophieporak/Documents/DeRisi_data /duplicate_arenavirus_proteins.fasta"
-output_X_tiles = '/Users/sophieporak/Documents/DeRisi_data /tiled_aa_arenavirus_with_X_character.fasta'
-output_duplicate_tiles = '/Users/sophieporak/Documents/DeRisi_data /duplicate_aa_arenavrus_tiles.fasta'
+output_duplicate_proteins = "/Users/sophieporak/Documents/DeRisi_data /arenavirus_duplicate_proteins.fasta"
+output_X_tiles = '/Users/sophieporak/Documents/DeRisi_data /arenavirus_tiles_aa_with_X_character.fasta'
+output_duplicate_tiles = '/Users/sophieporak/Documents/DeRisi_data /arenavirus_duplicate_aa_tiles.fasta'
 
 
 
@@ -289,7 +289,7 @@ for record in SeqIO.parse(fasta_file, "fasta"):
         # Create SeqRecord, wraps the nucleotide sequence string into a Seq object. id = header means becomes the identifier in the FASTA, the part right after >. 
         #description=desc becomes the rest of the FASTA header line, holding metadata like protein name, virus, location etc. 
         rec = SeqRecord(Seq(na_seq_clean), id=header, description=desc)
-        # Create amino acid FASTA entry (for validation)
+        # Create amino acid FASTA entry (for validation), unprocessed
         aa_rec = SeqRecord(Seq(peptide), id=header, description=desc) 
 
         records_out.append(rec)
