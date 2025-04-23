@@ -20,13 +20,22 @@ import pandas as pd
 import numpy as np
 import random
 
-fasta_file = "/Users/sophieporak/Documents/DeRisi_data /arenavirus_merged.fasta" #update path 
-output_tiling = '/Users/sophieporak/Documents/DeRisi_data /aa_seq_tiling_output/arenavirus_aa_preprocess_tiles.fasta'
-output_fasta = "/Users/sophieporak/Documents/DeRisi_data /aa_seq_tiling_output/arenavirus_nt_tiles.fasta"
+import os 
 
-output_duplicate_proteins = "/Users/sophieporak/Documents/DeRisi_data /aa_seq_tiling_output/arenavirus_duplicate_proteins.fasta"
-output_X_tiles = '/Users/sophieporak/Documents/DeRisi_data /aa_seq_tiling_output/arenavirus_tiles_aa_with_X_character.fasta'
-output_duplicate_tiles = '/Users/sophieporak/Documents/DeRisi_data /aa_seq_tiling_output/arenavirus_duplicate_aa_tiles.fasta'
+fasta_file = "/Users/sophieporak/Documents/DeRisi_data /arenavirus_merged.fasta" #update path 
+
+# path to output directory
+output_dir = "path_to_dir"
+
+# create directory if it doesn't exist
+os.makedirs(output_dir, exist_ok=True)
+
+# name of output files
+output_tiling = os.path.join(output_dir, 'arenavirus_aa_preprocess_tiles.fasta')
+output_fasta = os.path.join(output_dir, 'arenavirus_nt_tiles.fasta')
+output_duplicate_proteins = os.path.join(output_dir,'arenavirus_duplicate_proteins.fasta')
+output_X_tiles = os.path.join(output_dir, 'arenavirus_tiles_aa_with_X_characters.fasta')
+output_duplicate_tiles = os.path.join(output_dir, 'arenavirus_duplicate_aa_tiles.fasta')
 
 
 
