@@ -270,7 +270,7 @@ for record in SeqIO.parse(fasta_file, "fasta"):
         # Metadata in the record.description
         desc = f"{record.description} | tile {i+1} of {len(tiled_peptides)}"
 
-        valid_aa = set("ARNDCQEGHILKMFPSTWYVBZ")
+        valid_aa = set("ARNDCQEGHILKMFPSTWYV")
         if not set(peptide).issubset(valid_aa) or "X" in peptide: #is every element in set peptide also in set valid_aa?
             tiles_with_x_out.append(SeqRecord(Seq(peptide), id=header, description = desc))
             continue
