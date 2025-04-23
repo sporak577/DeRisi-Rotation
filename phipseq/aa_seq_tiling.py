@@ -2,7 +2,7 @@
 This script will read in a fasta file of protein sequences and
 1) deduplicate -> save in fasta file
 2) tile them to 48aa, with 24 aa overlap
-2.2) deduplicate again on tile level & get rid of tiles containing X character -> save header and sequence in fasta file
+2.2) deduplicate again on tile level & get rid of tiles containing X & other invalid characters -> save header and sequence in fasta file
 3) codon optimize 
 4) purge restriction sites by using synonymous mutations
 5) write to output FASTA
@@ -21,12 +21,12 @@ import numpy as np
 import random
 
 fasta_file = "/Users/sophieporak/Documents/DeRisi_data /arenavirus_merged.fasta" #update path 
-output_tiling = '/Users/sophieporak/Documents/DeRisi_data /arenavirus_aa_preprocess_tiles.fasta'
-output_fasta = "/Users/sophieporak/Documents/DeRisi_data /arenavirus_nt_tiles.fasta"
+output_tiling = '/Users/sophieporak/Documents/DeRisi_data /aa_seq_tiling_output/arenavirus_aa_preprocess_tiles.fasta'
+output_fasta = "/Users/sophieporak/Documents/DeRisi_data /aa_seq_tiling_output/arenavirus_nt_tiles.fasta"
 
-output_duplicate_proteins = "/Users/sophieporak/Documents/DeRisi_data /arenavirus_duplicate_proteins.fasta"
-output_X_tiles = '/Users/sophieporak/Documents/DeRisi_data /arenavirus_tiles_aa_with_X_character.fasta'
-output_duplicate_tiles = '/Users/sophieporak/Documents/DeRisi_data /arenavirus_duplicate_aa_tiles.fasta'
+output_duplicate_proteins = "/Users/sophieporak/Documents/DeRisi_data /aa_seq_tiling_output/arenavirus_duplicate_proteins.fasta"
+output_X_tiles = '/Users/sophieporak/Documents/DeRisi_data /aa_seq_tiling_output/arenavirus_tiles_aa_with_X_character.fasta'
+output_duplicate_tiles = '/Users/sophieporak/Documents/DeRisi_data /aa_seq_tiling_output/arenavirus_duplicate_aa_tiles.fasta'
 
 
 
@@ -246,7 +246,7 @@ duplicate_count = 0
 # full protein duplicates out
 full_protein_duplicates_out = []
 
-# detect tiles with X characters 
+# detect tiles with X and invalid characters 
 tiles_with_x_out = []
 # detect duplicate tiles 
 duplicate_tiles_out = []
@@ -270,9 +270,10 @@ for record in SeqIO.parse(fasta_file, "fasta"):
         # Metadata in the record.description
         desc = f"{record.description} | tile {i+1} of {len(tiled_peptides)}"
 
-        if "X" in peptide: 
+        valid_aa = set("ARNDCQEGHILKMFPSTWYVBZ")
+        if not set(peptide).issubset(valid_aa) or "X" in peptide: #is every element in set peptide also in set valid_aa?
             tiles_with_x_out.append(SeqRecord(Seq(peptide), id=header, description = desc))
-            continue 
+            continue
 
         if peptide in seen_peptides: 
             duplicate_count += 1
