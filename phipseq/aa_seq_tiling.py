@@ -18,14 +18,21 @@ from Bio.Seq import Seq
 
 import pandas as pd
 import numpy as np
-import random
 
 import os 
+"""
+cd_hit_threshold = 1
 
+fasta_file = f"/Users/sophieporak/Documents/DeRisi_data /cd-hit arenavirus merged/{cd_hit_threshold}_arenavirus_merged.fasta" #update path 
+
+# path to output directory
+output_dir = f"/Users/sophieporak/Documents/DeRisi_data /cd-hit arenavirus merged/{cd_hit_threshold}_cd-hit_tiles"
+
+"""
 fasta_file = "/Users/sophieporak/Documents/DeRisi_data /arenavirus_merged.fasta" #update path 
 
 # path to output directory
-output_dir = "path_to_dir"
+output_dir = '/Users/sophieporak/Documents/DeRisi_data /aa_seq_tiling_out_ctrl_apr_23_25'
 
 # create directory if it doesn't exist
 os.makedirs(output_dir, exist_ok=True)
