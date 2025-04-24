@@ -1,5 +1,5 @@
 """
-This script extracts protein sequences and metadata from a GenBank file and writes a FASTA file
+This script extracts protein sequences and metadata from a GenPept file and writes a FASTA file
 with headers that include accession, product, geographic location, host, collection date, segment, and strain.
 The output is sorted by accession number.
 """
@@ -10,14 +10,16 @@ from operator import itemgetter
 print("Biopython works!")
 
 # === Settings ===
-input_file = "/Users/sophieporak/Library/CloudStorage/Box-Box/DeRisi/Arenavirus/protein sequences/BioProject PRJNA254017 NCBI Lassa virus sequences/gene_bank_full.gb"
-output_file = "proteins_with_metadata.fasta"
+input_file = "/Users/sophieporak/Library/CloudStorage/Box-Box/DeRisi/Arenavirus/20250424/arenaviridae_042425.gp"
+output_file = "arenaviridae_042425_gb.fasta"
 
 # === Collect all entries first ===
 entries = []
 
-for record in SeqIO.parse(input_file, "genbank"):
-    accession = record.id
+for record in SeqIO.parse(input_file, "genbank"): #GenPept uses the same parser
+    accession = record.id #gets the accession number from the record
+    product = record.description #gets the description line for the record
+    aa_seq = str(record.seq) #gets the actual protein sequence from the ORIGIN section
 
     # Get metadata from source feature
     source = next((f for f in record.features if f.type == "source"), None)
@@ -27,22 +29,17 @@ for record in SeqIO.parse(input_file, "genbank"):
     segment = source.qualifiers.get("segment", ["?"])[0] if source else "?"
     strain = source.qualifiers.get("strain", ["?"])[0] if source else "?"
 
-    # Loop through CDS features with translation
-    for feature in record.features:
-        if feature.type == "CDS" and "translation" in feature.qualifiers:
-            product = feature.qualifiers.get("product", ["?"])[0]
-            aa_seq = feature.qualifiers["translation"][0]
-
-            entries.append({
-                "accession": accession,
-                "product": product,
-                "geo": geo,
-                "host": host,
-                "date": date,
-                "segment": segment,
-                "strain": strain,
-                "sequence": aa_seq
-            })
+   
+    entries.append({
+            "accession": accession,
+            "product": product,
+            "geo": geo,
+            "host": host,
+            "date": date,
+            "segment": segment,
+            "strain": strain,
+            "sequence": aa_seq
+    })
 
 # === Sort by accession number ===
 entries.sort(key=itemgetter("accession"))
