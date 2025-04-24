@@ -2,6 +2,9 @@
 This script extracts protein sequences and metadata from a GenPept file and writes a FASTA file
 with headers that include accession, product, geographic location, host, collection date, segment, and strain.
 The output is sorted by accession number.
+
+this script only includes sequences that have valid characters and generates a separate file with sequences
+that have invalid characters, such as 'X'.
 """
 
 from Bio import SeqIO
