@@ -11,7 +11,9 @@ print("Biopython works!")
 
 # === Settings ===
 input_file = "/Users/sophieporak/Library/CloudStorage/Box-Box/DeRisi/Arenavirus/20250424/arenaviridae_042425.gp"
-output_file = "arenaviridae_042425_gb.fasta"
+output_file = "arenaviridae_042425.fasta"
+invalid_output_file = "arenaviridae_042425_invalid.fasta"
+valid_amino_acids = set("ACDEFGHIKLMNPQRSTVWY")
 
 # === Collect all entries first ===
 entries = []
@@ -45,14 +47,28 @@ for record in SeqIO.parse(input_file, "genbank"): #GenPept uses the same parser
 entries.sort(key=itemgetter("accession"))
 
 # === Write to output ===
-with open(output_file, "w") as out_f:
+with open(output_file, "w") as out_f, open(invalid_output_file, "w") as invalid_f:
     for entry in entries:
-        header = (
-            f">{entry['accession']} | {entry['product']} | {entry['geo']} | "
-            f"{entry['host']} | {entry['date']} | segment={entry['segment']} | strain={entry['strain']}"
-        )
-        out_f.write(header + "\n")
-        for i in range(0, len(entry["sequence"]), 70):
-            out_f.write(entry["sequence"][i:i+70] + "\n")
+        # check if sequence only has valid amino acids 
+        seq_set = set(entry["sequence"].upper())
+        if seq_set.issubset(valid_amino_acids):
+            header = (
+                f">{entry['accession']} | {entry['product']} | {entry['geo']} | "
+                f"{entry['host']} | {entry['date']} | segment={entry['segment']} | strain={entry['strain']}"
+            )
+            out_f.write(header + "\n")
+            for i in range(0, len(entry["sequence"]), 70):
+                out_f.write(entry["sequence"][i:i+70] + "\n")
+        
+        else:
+            header = (
+                f">{entry['accession']} | INVALID | {entry['product']} | {entry['geo']} | "
+                f"{entry['host']} | {entry['date']} | segment={entry['segment']} | strain={entry['strain']}"
+            )
+            invalid_f.write(header + "\n")
+            for i in range(0, len(entry["sequence"]), 70):
+                invalid_f.write(entry["sequence"][i:i+70] + "\n")
 
 print(f"Done! Protein FASTA saved to: {output_file}")
+
+print(f"Done! Invalid Protein FASTA saved to: {invalid_output_file}")
