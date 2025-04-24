@@ -1,7 +1,7 @@
 '''
 This script will read in a fasta file of protein sequences and
 1) deduplicate -> save in fasta file
-2) tile them to 48aa, with 24 aa overlap
+2) tile them to 46aa, with 23ß aa overlap
 2.2) deduplicate again on tile level & get rid of tiles containing X & other invalid characters -> save header and sequence in fasta file
 3) codon optimize 
 4) purge restriction sites by using synonymous mutations
