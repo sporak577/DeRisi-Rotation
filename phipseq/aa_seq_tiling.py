@@ -24,26 +24,26 @@ import random
 
 cd_hit_threshold = 0.96
 
-fasta_file = f"/Users/sophieporak/Documents/DeRisi_data /cd-hit arenavirus merged/{cd_hit_threshold}_arenavirus_merged.fasta" #update path 
+fasta_file = '/Users/sophieporak/Library/CloudStorage/Box-Box/DeRisi/Arenavirus/20250424/complete protein sequences/0.96_arenaviridae_complete_042425.fasta' #update path 
 
 # path to output directory
-output_dir = f"/Users/sophieporak/Documents/DeRisi_data /cd-hit arenavirus merged/{cd_hit_threshold}_cd-hit_tiles"
+#output_dir = f"/Users/sophieporak/Documents/DeRisi_data /cd-hit arenavirus merged/{cd_hit_threshold}_cd-hit_tiles"
 
 
 #fasta_file = "/Users/sophieporak/Documents/DeRisi_data /arenavirus_merged.fasta" #update path 
 
 # path to output directory
-#output_dir = '/Users/sophieporak/Documents/DeRisi_data /aa_seq_tiling_out_ctrl_apr_23_25'
+output_dir = '/Users/sophieporak/Documents/DeRisi_data /0.96_arenaviridae_complete_042425_tiling_out'
 
 # create directory if it doesn't exist
 os.makedirs(output_dir, exist_ok=True)
 
 # name of output files
-output_tiling = os.path.join(output_dir, 'arenavirus_aa_preprocess_tiles.fasta')
-output_fasta = os.path.join(output_dir, 'arenavirus_nt_tiles.fasta')
-output_duplicate_proteins = os.path.join(output_dir,'arenavirus_duplicate_proteins.fasta')
-output_X_tiles = os.path.join(output_dir, 'arenavirus_tiles_aa_with_X_characters.fasta')
-output_duplicate_tiles = os.path.join(output_dir, 'arenavirus_duplicate_aa_tiles.fasta')
+output_tiling = os.path.join(output_dir, f'{cd_hit_threshold}_complete_arenavirus_aa_preprocess_tiles.fasta')
+output_fasta = os.path.join(output_dir, f'{cd_hit_threshold}_complete_arenavirus_nt_tiles.fasta')
+output_duplicate_proteins = os.path.join(output_dir,f'{cd_hit_threshold}_complete_arenavirus_duplicate_proteins.fasta')
+output_X_tiles = os.path.join(output_dir, f'{cd_hit_threshold}_complete_arenavirus_tiles_aa_with_X_characters.fasta')
+output_duplicate_tiles = os.path.join(output_dir, f'{cd_hit_threshold}_complete_arenavirus_duplicate_aa_tiles.fasta')
 
 
 
@@ -138,7 +138,7 @@ NA2AA = {'GCT': 'A',
  'TGA': '*',
  'TAG': '*'}
 
-def tiling(seq, tile_len=48, overlap=24): 
+def tiling(seq, tile_len=46, overlap=23): 
     """
     Tiles the input amino acid sequence into overlapping peptides. 
     
