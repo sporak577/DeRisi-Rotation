@@ -13,9 +13,9 @@ from operator import itemgetter
 print("Biopython works!")
 
 # === Settings ===
-input_file = "/Users/sophieporak/Library/CloudStorage/Box-Box/DeRisi/Arenavirus/20250424/arenaviridae_042425.gp"
-output_file = "arenaviridae_042425.fasta"
-invalid_output_file = "arenaviridae_042425_invalid.fasta"
+input_file = "/Users/sophieporak/Library/CloudStorage/Box-Box/DeRisi/Arenavirus/20250425/clinicalsequences_LASV_PRJNA254017_042525.gp"
+output_file = "clinicalsequences_AND_arenaviridae_complete_042525.fasta"
+invalid_output_file = "clinicalsequences_AND_arenaviridae_complete_invalid.fasta"
 valid_amino_acids = set("ACDEFGHIKLMNPQRSTVWY")
 
 # === Collect all entries first ===
