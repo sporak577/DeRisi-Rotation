@@ -16,12 +16,13 @@ import csv
 import matplotlib.pyplot as plt
 
 input_file = "/Users/sophieporak/Library/CloudStorage/Box-Box/DeRisi/Arenavirus/20250428/0.94_txid11617[Organism:exp]_042528_tiling_out/0.94_tiling_out_nt_tiles.fasta"
-looking_at = "arenaviridae"
+looking_at_which_viruses = "Arenaviridae"
+looking_at_nt_or_aa = "nucleotides"
 
 def shannon_entropy(seq):
-    #Counter(seq) counts how many times each amino acid appear
+    #Counter(seq) counts how many times each amino acid or nucleotide appears. 
     counts = Counter(seq)
-    #get total length of sequence, here peptide
+    #get total length of sequence
     total = len(seq)
     """
     for each amino acid it takes the frequency (c / total) and then multiplies by log2(frequency). this is being summed over all amino acids.
@@ -32,9 +33,9 @@ def shannon_entropy(seq):
     H(X) = - sum[possibility of observing amino acid x * log2 (possibility of observing amino acid x)]
       where x is element of X, and X = all 20 amino acids.
     
-    H(X) is between 0 and 1. 
+    H(X) is in bits. For 20 equally probable amino acids Hmax is around 4.32 bits, which would be the maximal entropy in this scenario. 
 
-    note that the entropy is maximal if possibility of observing amino axid x is 1/20th for all amino acids, as this sums up to 1!
+    for nucleotides the maximum entropy is 2.0 bits, because there are 4 bases. 
     """
 
     entropy = -sum((c/total) * math.log2(c/total) for c in counts.values())
@@ -52,12 +53,12 @@ for record in SeqIO.parse(input_file, "fasta"):
 # Plot histogram 
 plt.figure(figsize=(10, 6))
 plt.hist([x[1] for x in entropy_values], bins=30, edgecolor='black', alpha=0.8)
-plt.title(f"Shannon Entropy Distribution of Peptide Sequences, {looking_at}")
+plt.title(f"Shannon Entropy Distribution of {looking_at_nt_or_aa} Sequences, {looking_at_which_viruses}")
 plt.xlabel("Shannon Entropy")
 plt.ylabel("Number of Sequences")
 plt.grid(True)
 plt.tight_layout()
-plt.savefig(f"entropy_distribution_{looking_at}.png", dpi=300)
+plt.savefig(f"entropy_distribution_{looking_at_which_viruses}.png", dpi=300)
 plt.show()
 
 #sort results 
