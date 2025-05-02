@@ -7,6 +7,8 @@ Input:
 FASTA file 
 
 Output: 
+ - CSV file: Shannon entropy distribution of sequences ranked lowest to highest entropy.
+ - Bar plot: Shannon entropy distribution of sequences. 
 
 """
 from Bio import SeqIO 
@@ -15,9 +17,10 @@ import math
 import csv
 import matplotlib.pyplot as plt
 
-input_file = "/Users/sophieporak/Library/CloudStorage/Box-Box/DeRisi/Arenavirus/20250428/0.94_txid11617[Organism:exp]_042528_tiling_out/0.94_tiling_out_nt_tiles.fasta"
-looking_at_which_viruses = "Arenaviridae"
+input_file = "test_entropy.fasta"
+looking_at_which_viruses = "test"
 looking_at_nt_or_aa = "nucleotides"
+date = "05-02-25"
 
 def shannon_entropy(seq):
     #Counter(seq) counts how many times each amino acid or nucleotide appears. 
@@ -54,11 +57,9 @@ for record in SeqIO.parse(input_file, "fasta"):
 plt.figure(figsize=(10, 6))
 plt.hist([x[1] for x in entropy_values], bins=30, edgecolor='black', alpha=0.8)
 
-# Annotate top 5 diverse peptides
-"NEED TO DO"
 
-plt.title(f"Shannon Entropy Distribution of {looking_at_nt_or_aa} Sequences, {looking_at_which_viruses}")
-plt.xlabel("Shannon Entropy")
+plt.title(f"Shannon Entropy Distribution of {looking_at_nt_or_aa} tiles, {looking_at_which_viruses}")
+plt.xlabel("Shannon Entropy (bits)")
 plt.ylabel("Number of Sequences")
 plt.grid(True)
 plt.tight_layout()
@@ -66,10 +67,10 @@ plt.savefig(f"entropy_distribution_{looking_at_which_viruses}.png", dpi=300)
 plt.show()
 
 #sort results 
-entropy_values.sort(key=lambda x: x[1], reverse=True)
+entropy_values.sort(key=lambda x: x[1], reverse=False)
 
 #write entropy-ranked output
-with open("entropy_ranked.csv", "w", newline="") as out_csv:
+with open(f"entropy_rank_{looking_at_which_viruses}_{looking_at_nt_or_aa}_{date}.csv", "w", newline="") as out_csv:
     writer = csv.writer(out_csv)
     writer.writerow(["Record ID", "Shannon Entropy", "Sequence"])
     writer.writerows(entropy_values)
