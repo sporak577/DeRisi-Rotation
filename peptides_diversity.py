@@ -53,6 +53,10 @@ for record in SeqIO.parse(input_file, "fasta"):
 # Plot histogram 
 plt.figure(figsize=(10, 6))
 plt.hist([x[1] for x in entropy_values], bins=30, edgecolor='black', alpha=0.8)
+
+# Annotate top 5 diverse peptides
+"NEED TO DO"
+
 plt.title(f"Shannon Entropy Distribution of {looking_at_nt_or_aa} Sequences, {looking_at_which_viruses}")
 plt.xlabel("Shannon Entropy")
 plt.ylabel("Number of Sequences")
