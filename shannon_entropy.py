@@ -1,6 +1,6 @@
 """
 Authors: Sophie-Christine Porak & ChatGPT
-This script will assess how peptides score in the following domains: 
+This script will assess how sequences score in the following domains: 
 1) Diversity - Shannon Entropy
 
 Input: 
