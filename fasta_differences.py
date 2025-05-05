@@ -1,30 +1,42 @@
-"""
-differences based on FASTA header - so here the protein IDs
-"""
-
 from Bio import SeqIO
+import re
 
 file1 = "file1.fasta"
 file2 = "file2.fasta"
-output_file = "differences_by_id.fasta"
+output_file = "unique_sequences_annotated.fasta"
 
-def get_header_id(record):
+def extract_root_id(record):
+    """Gets the root ID like XOB76279.1 from the FASTA header."""
+    return record.id.split("_")[0]
+
+def extract_protein_and_tile(description):
     """
-    Extracts the first part of the FASTA header before the first space or pipe.
-    E.g., >XOB76282.1_21_1 -> XOB76282.1
+    Extracts protein name and tile number from full description.
+    Example: 'nucleoprotein|...| tile 7 of 22' → ('nucleoprotein', '7')
     """
-    header = record.id  # takes the part after '>'
-    return header.split('_')[0].split('|')[0]  # strip tile info or anything after _ or |
+    parts = description.split("|")
+    protein = parts[0].split()[-1] if parts else "unknown"
 
-# Load file2 IDs to compare against
-file2_ids = {get_header_id(record) for record in SeqIO.parse(file2, "fasta")}
+    # Look for 'tile N of M'
+    tile_match = re.search(r'tile\s+(\d+)\s+of\s+\d+', description)
+    tile = tile_match.group(1) if tile_match else "?"
 
-# Compare file1 and output entries not in file2
-diff_records = [
-    record for record in SeqIO.parse(file1, "fasta")
-    if get_header_id(record) not in file2_ids
-]
+    return protein, tile
 
-# Write the difference records to output
-SeqIO.write(diff_records, output_file, "fasta")
-print(f"Wrote {len(diff_records)} records with unique headers to {output_file}")
+# Load all root IDs from file2
+file2_ids = {extract_root_id(record) for record in SeqIO.parse(file2, "fasta")}
+
+# Compare and extract annotated records from file1
+output_records = []
+for record in SeqIO.parse(file1, "fasta"):
+    root_id = extract_root_id(record)
+    if root_id not in file2_ids:
+        protein, tile = extract_protein_and_tile(record.description)
+        new_header = f"{root_id} | {protein} | tile {tile}"
+        record.id = new_header
+        record.description = ""
+        output_records.append(record)
+
+# Write output
+SeqIO.write(output_records, output_file, "fasta")
+print(f"Wrote {len(output_records)} unique annotated records to {output_file}")
