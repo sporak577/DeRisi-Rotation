@@ -38,7 +38,7 @@ cd_hit_threshold = 0.96
 fasta_file = '/Users/sophieporak/Library/CloudStorage/Box-Box/DeRisi/cd-hit_0.96_on_0.94_aa_tiles_final_library/cd-hit_0.96_0.94_aa_tiles.fasta' #update path 
 
 # path to output directory
-output_dir = '/Users/sophieporak/Desktop/cd-hit_0.96_0.94_final_library_protein_records_tiling_out_050525'
+output_dir = '/Users/sophieporak/Desktop/cd-hit_0.96_0.94_final_library_protein_records_tiling_out_050625'
 
 #define nucleotide linkers
 five_prime = "GTGGTTGGTGCTGTAGGAGCA"
