@@ -7,7 +7,7 @@ This script will read in a fasta file of protein sequences and
     - duplicate peptides (after tiling)
 4) codon-optimizes peptides for E.coli expression
 5) adds nucleotide linkers
-6) removes restriction enzyme recognition sites 
+6) removes restriction enzyme recognition sites (ecoRI='GAATTC', hindIII='AAGCTT', bamHI='GGATCC', XhoI='CTCGAG')
 7) validates that translated sequences match the original peptide
 8) writes outputs to multiple FASTA files: 
     - codon-optimized nucleotide tiles
