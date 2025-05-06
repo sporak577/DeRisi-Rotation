@@ -1,15 +1,25 @@
 '''
 This script will read in a fasta file of protein sequences and
-1) deduplicate -> save in fasta file
+1) deduplicate protein sequences (based on exact amino aicds)
 2) tile them to 46aa, with 23ß aa overlap
-2.2) deduplicate again on tile level & get rid of tiles containing X & other invalid characters -> save header and sequence in fasta file
-3) codon optimize 
-4) purge restriction sites by using synonymous mutations
-5) write to output FASTA
+3) filters out: 
+    - peptides with invalid characters 
+    - duplicate peptides (after tiling)
+4) codon-optimizes peptides for E.coli expression
+5) removes restriction enzyme recognition sites 
+6) validates that translated sequences match the original peptide
+7) writes outputs to multiple FASTA files: 
+    - codon-optimized nucleotide tiles
+    - original peptide tiles
+    - peptides with invalid characters
+    - duplicate full length proteins
+    - duplicate peptides (post-tiling)
+    - translation mismatches 
+    - peptides where restriction sites removal failed
+    - back-translated amino acid sequence (as sanity check)
 
-it will keep metadata in FASTA headers of generated tiles
 
-it will also write an output FASTA of generated peptides before peptide processing!
+the script preserves all FASTA header metadata
 '''
 
 from Bio import SeqIO
