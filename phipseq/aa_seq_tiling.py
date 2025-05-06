@@ -45,6 +45,7 @@ output_duplicate_proteins = os.path.join(output_dir,f'{cd_hit_threshold}_tiling_
 output_X_tiles = os.path.join(output_dir, f'{cd_hit_threshold}_tiles_aa_with_X_characters.fasta')
 output_duplicate_tiles = os.path.join(output_dir, f'{cd_hit_threshold}_tiling_out_duplicate_aa_tiles.fasta')
 translation_mismatched_tiles = os.path.join(output_dir, f'{cd_hit_threshold}_tiling_out_translation_mismatch.fasta')
+output_unresolved_restriction = os.path.join(output_dir, f'{cd_hit_threshold}_unresolved_restriction_sites.fasta')
 
 
 
@@ -292,6 +293,7 @@ tiles_with_x_out = []
 duplicate_tiles_out = []
 #translation mismatches 
 translation_mismatches = []
+unresolved_restriction_tiles = []
 
 
 for record in SeqIO.parse(fasta_file, "fasta"):
@@ -331,6 +333,7 @@ for record in SeqIO.parse(fasta_file, "fasta"):
         restriction_sites = ['GAATTC', 'AAGCTT', 'GGATCC', 'CTCGAG']
         if any(site in na_seq_clean for site in restriction_sites):
             print(f"Unresolved restriction site in: {header}")
+            unresolved_restriction_tiles.append(SeqRecord(Seq(peptide), id=header, description=desc + " | unresolved restriction site"))
             continue  # skip this tile!
 
         #sanity check: translated sequences match original peptide
@@ -398,4 +401,7 @@ with open(translation_mismatched_tiles, "w") as out_mismatch_tiles:
     SeqIO.write(translation_mismatches, out_mismatch_tiles, "fasta")
 print(f"Skipped {len(translation_mismatches)} translation mismatched tiles written to '{output_duplicate_tiles}'")
 
+with open(output_unresolved_restriction, "w") as out_unresolved:
+    SeqIO.write(unresolved_restriction_tiles, out_unresolved, "fasta")
+print(f"Excluded {len(unresolved_restriction_tiles)} tiles due to unresolved restriction sites. Written to '{output_unresolved_restriction}'")
 
