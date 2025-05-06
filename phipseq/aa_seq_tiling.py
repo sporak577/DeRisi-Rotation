@@ -30,7 +30,7 @@ fasta_file = '../test.fasta' #update path
 #output_dir = f"/Users/sophieporak/Documents/DeRisi_data /cd-hit arenavirus merged/{cd_hit_threshold}_cd-hit_tiles"
 
 
-#fasta_file = "/Users/sophieporak/Documents/DeRisi_data /arenavirus_merged.fasta" #update path 
+fasta_file = "/Users/sophieporak/Documents/DeRisi_data /arenavirus_merged.fasta" #update path 
 
 # path to output directory
 output_dir = 'test'
@@ -348,6 +348,19 @@ for record in SeqIO.parse(fasta_file, "fasta"):
 
         
 
+#backtranslation sanity check
+output_backtranslated = os.path.join(output_dir, f'{cd_hit_threshold}_tiling_out_backtranslated_aa.fasta')
+backtranslated_records = []
+
+for rec in records_out:
+    back_aa = str(rec.seq.translate())
+    aa_rec = SeqRecord(Seq(back_aa), id=rec.id, description=rec.description + " | backtranslated")
+    backtranslated_records.append(aa_rec)
+
+with open(output_backtranslated, "w") as out_back:
+    SeqIO.write(backtranslated_records, out_back, "fasta")
+
+print(f"Done! {len(backtranslated_records)} backtranslated AA tiles written to '{output_backtranslated}'")
 
 with open(output_fasta, "w") as out_f:
     SeqIO.write(records_out, out_f, "fasta")
@@ -377,3 +390,6 @@ print(f"Skipped {len(duplicate_tiles_out)} duplicate tiles written to '{output_d
 
 with open(translation_mismatched_tiles, "w") as out_mismatch_tiles: 
     SeqIO.write(translation_mismatches, out_mismatch_tiles, "fasta")
+print(f"Skipped {len(translation_mismatches)} translation mismatched tiles written to '{output_duplicate_tiles}'")
+
+
