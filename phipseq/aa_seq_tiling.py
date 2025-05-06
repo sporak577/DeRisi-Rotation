@@ -6,9 +6,10 @@ This script will read in a fasta file of protein sequences and
     - peptides with invalid characters 
     - duplicate peptides (after tiling)
 4) codon-optimizes peptides for E.coli expression
-5) removes restriction enzyme recognition sites 
-6) validates that translated sequences match the original peptide
-7) writes outputs to multiple FASTA files: 
+5) adds nucleotide linkers
+6) removes restriction enzyme recognition sites 
+7) validates that translated sequences match the original peptide
+8) writes outputs to multiple FASTA files: 
     - codon-optimized nucleotide tiles
     - original peptide tiles
     - peptides with invalid characters
@@ -37,13 +38,11 @@ cd_hit_threshold = 0.96
 fasta_file = '/Users/sophieporak/Library/CloudStorage/Box-Box/DeRisi/cd-hit_0.96_on_0.94_aa_tiles_final_library/cd-hit_0.96_0.94_aa_tiles.fasta' #update path 
 
 # path to output directory
-#output_dir = f"/Users/sophieporak/Documents/DeRisi_data /cd-hit arenavirus merged/{cd_hit_threshold}_cd-hit_tiles"
-
-
-#fasta_file = "/Users/sophieporak/Documents/DeRisi_data /arenavirus_merged.fasta" #update path 
-
-# path to output directory
 output_dir = '/Users/sophieporak/Desktop/cd-hit_0.96_0.94_final_library_protein_records_tiling_out_050525'
+
+#define nucleotide linkers
+five_prime = "GTGGTTGGTGCTGTAGGAGCA"
+three_prime = "TGATAAGCATATGCCATGGCCTC"
 
 # create directory if it doesn't exist
 os.makedirs(output_dir, exist_ok=True)
@@ -296,7 +295,6 @@ duplicate_count = 0
 
 # full protein duplicates out
 full_protein_duplicates_out = []
-
 # detect tiles with X and invalid characters 
 tiles_with_x_out = []
 # detect duplicate tiles 
@@ -314,9 +312,7 @@ for record in SeqIO.parse(fasta_file, "fasta"):
         full_protein_duplicates_out.append(record) #save for output
         continue  #skips the rest of this loop iteration (don't tile or process) and move to the next one
     seen_proteins.add(aa_seq)
-
     tiled_peptides = tiling(aa_seq)
-
 
     for i, peptide in enumerate(tiled_peptides):
         # Fasta header ID
@@ -337,7 +333,11 @@ for record in SeqIO.parse(fasta_file, "fasta"):
         seen_peptides.add(peptide)
 
         na_seq = aa2na(peptide) #codon optimization
-        na_seq_clean = replace_restriction_sites(na_seq) or na_seq
+
+        #add linkers 
+        na_seq_with_linkers = five_prime + na_seq + three_prime
+
+        na_seq_clean = replace_restriction_sites(na_seq_with_linkers) or na_seq_with_linkers
 
         # Final check for any residual restriction site
         restriction_sites = ['GAATTC', 'AAGCTT', 'GGATCC', 'CTCGAG']
@@ -346,8 +346,8 @@ for record in SeqIO.parse(fasta_file, "fasta"):
             unresolved_restriction_tiles.append(SeqRecord(Seq(peptide), id=header, description=desc + " | unresolved restriction site"))
             continue  # skip this tile!
 
-        #sanity check: translated sequences match original peptide
-        translated = str(Seq(na_seq_clean).translate())
+        #sanity check: translated sequences match original peptide (so the middle of the cleaned sequence)
+        translated = str(Seq(na_seq_clean[len(five_prime):-len(three_prime)]).translate())
         if translated != peptide:
             translation_mismatches.append((header, peptide, translated))
             print(f"Translation mismatch for {header} - mutation may have broken reading frame or cause mis-translation")
@@ -355,6 +355,8 @@ for record in SeqIO.parse(fasta_file, "fasta"):
             print(f"translated: {translated}")
             #skip saving this tile!
             continue 
+
+        #save sequences with linkers included
 
         # Create SeqRecord, wraps the nucleotide sequence string into a Seq object. id = header means becomes the identifier in the FASTA, the part right after >. 
         #description=desc becomes the rest of the FASTA header line, holding metadata like protein name, virus, location etc. 
@@ -409,7 +411,7 @@ print(f"Skipped {len(duplicate_tiles_out)} duplicate tiles written to '{output_d
 
 with open(translation_mismatched_tiles, "w") as out_mismatch_tiles: 
     SeqIO.write(translation_mismatches, out_mismatch_tiles, "fasta")
-print(f"Skipped {len(translation_mismatches)} translation mismatched tiles written to '{output_duplicate_tiles}'")
+print(f"Skipped {len(translation_mismatches)} translation mismatched tiles written to '{translation_mismatches}'")
 
 with open(output_unresolved_restriction, "w") as out_unresolved:
     SeqIO.write(unresolved_restriction_tiles, out_unresolved, "fasta")
