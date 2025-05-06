@@ -22,18 +22,18 @@ import numpy as np
 import os 
 import random
 
-cd_hit_threshold = 0.94
+cd_hit_threshold = 0.96
 
-fasta_file = '../test.fasta' #update path 
+fasta_file = '/Users/sophieporak/Library/CloudStorage/Box-Box/DeRisi/cd-hit_0.96_on_0.94_aa_tiles_final_library/cd-hit_0.96_0.94_aa_tiles.fasta' #update path 
 
 # path to output directory
 #output_dir = f"/Users/sophieporak/Documents/DeRisi_data /cd-hit arenavirus merged/{cd_hit_threshold}_cd-hit_tiles"
 
 
-fasta_file = "/Users/sophieporak/Documents/DeRisi_data /arenavirus_merged.fasta" #update path 
+#fasta_file = "/Users/sophieporak/Documents/DeRisi_data /arenavirus_merged.fasta" #update path 
 
 # path to output directory
-output_dir = 'test'
+output_dir = '/Users/sophieporak/Desktop/cd-hit_0.96_0.94_final_library_protein_records_tiling_out_050525'
 
 # create directory if it doesn't exist
 os.makedirs(output_dir, exist_ok=True)
@@ -222,7 +222,7 @@ def replace_restriction_sites(seq):
     XhoI='CTCGAG'
     """
     restriction_sites=['GAATTC','AAGCTT','GGATCC','CTCGAG']
-    max_passes = 10 
+    max_passes = 100 
     
     for _ in range(max_passes):
         #checks if we successfully removed any site in this round, if not stop early.
@@ -326,6 +326,12 @@ for record in SeqIO.parse(fasta_file, "fasta"):
 
         na_seq = aa2na(peptide) #codon optimization
         na_seq_clean = replace_restriction_sites(na_seq) or na_seq
+
+        # Final check for any residual restriction site
+        restriction_sites = ['GAATTC', 'AAGCTT', 'GGATCC', 'CTCGAG']
+        if any(site in na_seq_clean for site in restriction_sites):
+        print(f"Unresolved restriction site in: {header}")
+        continue  # skip this tile!
 
         #sanity check: translated sequences match original peptide
         translated = str(Seq(na_seq_clean).translate())
