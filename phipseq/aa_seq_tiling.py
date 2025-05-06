@@ -330,8 +330,8 @@ for record in SeqIO.parse(fasta_file, "fasta"):
         # Final check for any residual restriction site
         restriction_sites = ['GAATTC', 'AAGCTT', 'GGATCC', 'CTCGAG']
         if any(site in na_seq_clean for site in restriction_sites):
-        print(f"Unresolved restriction site in: {header}")
-        continue  # skip this tile!
+            print(f"Unresolved restriction site in: {header}")
+            continue  # skip this tile!
 
         #sanity check: translated sequences match original peptide
         translated = str(Seq(na_seq_clean).translate())
