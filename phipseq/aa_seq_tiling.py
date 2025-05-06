@@ -22,9 +22,9 @@ import numpy as np
 import os 
 import random
 
-cd_hit_threshold = 0.96
+cd_hit_threshold = 0.94
 
-fasta_file = '/Users/sophieporak/Library/CloudStorage/Box-Box/DeRisi/Arenavirus/20250424/complete protein sequences/0.96_arenaviridae_complete_042425.fasta' #update path 
+fasta_file = '../test.fasta' #update path 
 
 # path to output directory
 #output_dir = f"/Users/sophieporak/Documents/DeRisi_data /cd-hit arenavirus merged/{cd_hit_threshold}_cd-hit_tiles"
@@ -33,17 +33,18 @@ fasta_file = '/Users/sophieporak/Library/CloudStorage/Box-Box/DeRisi/Arenavirus/
 #fasta_file = "/Users/sophieporak/Documents/DeRisi_data /arenavirus_merged.fasta" #update path 
 
 # path to output directory
-output_dir = '/Users/sophieporak/Documents/DeRisi_data /0.96_arenaviridae_complete_042425_tiling_out'
+output_dir = 'test'
 
 # create directory if it doesn't exist
 os.makedirs(output_dir, exist_ok=True)
 
 # name of output files
-output_tiling = os.path.join(output_dir, f'{cd_hit_threshold}_complete_arenavirus_aa_preprocess_tiles.fasta')
-output_fasta = os.path.join(output_dir, f'{cd_hit_threshold}_complete_arenavirus_nt_tiles.fasta')
-output_duplicate_proteins = os.path.join(output_dir,f'{cd_hit_threshold}_complete_arenavirus_duplicate_proteins.fasta')
-output_X_tiles = os.path.join(output_dir, f'{cd_hit_threshold}_complete_arenavirus_tiles_aa_with_X_characters.fasta')
-output_duplicate_tiles = os.path.join(output_dir, f'{cd_hit_threshold}_complete_arenavirus_duplicate_aa_tiles.fasta')
+output_tiling = os.path.join(output_dir, f'{cd_hit_threshold}_tiling_out_aa_preprocess_tiles.fasta')
+output_fasta = os.path.join(output_dir, f'{cd_hit_threshold}_tiling_out_nt_tiles.fasta')
+output_duplicate_proteins = os.path.join(output_dir,f'{cd_hit_threshold}_tiling_out_duplicate_proteins.fasta')
+output_X_tiles = os.path.join(output_dir, f'{cd_hit_threshold}_tiles_aa_with_X_characters.fasta')
+output_duplicate_tiles = os.path.join(output_dir, f'{cd_hit_threshold}_tiling_out_duplicate_aa_tiles.fasta')
+translation_mismatched_tiles = os.path.join(output_dir, f'{cd_hit_threshold}_tiling_out_translation_mismatch.fasta')
 
 
 
@@ -194,19 +195,24 @@ def aa2na(seq):
             
 def replace_restriction_sites(seq):
     """
-    kept from Haleigh Miller 
-
-    checks sequence for restriction enzyme cut sites and replaces first in-frame codon with synonomous mutation.
+    Iteratively replaces all restriction enzyme cut sites using synonymous mutations (in-frame codon)
     
     Parameters
     ----------
     seq: str
-        nucleotide sequence 
+        codon-optimized nucleotide sequence 
+
+    AA2NA : dict
+        amino acid to synonymous codon mapping
+    
+    NA2AA : dict
+        codon to amino acid mapping
     
     Returns
     -------
     new_seq: str or None
         nucleotide sequence with synonomous mutation at restriction site, or None if no restriction sites
+    
     Notes
     -----
     restriction sites:
@@ -216,40 +222,57 @@ def replace_restriction_sites(seq):
     XhoI='CTCGAG'
     """
     restriction_sites=['GAATTC','AAGCTT','GGATCC','CTCGAG']
+    max_passes = 10 
     
-    new_seq=None
-    for r in restriction_sites: 
-        if seq.find(r) != -1:
-            ##find codon at restriction site
-            x=seq.find(r)
-            n=x%3 #find start of codon
-            codon=seq[x-n:x-n+3]
-            
-            ##replace with synonomous mutation
-            tmp=AA2NA[NA2AA[codon]][:] #get copy of codon list
-            if len(tmp)>1:
-                tmp.remove(codon) #remove the one causing restriction site
-                new_codon=tmp[0] #replace 
-                new_seq=seq[:x-n]+new_codon+seq[x-n+3:]
-                
-            #tryptophan has only one codon so you cant do this
-            else: 
-                codon=seq[x-n+3:x-n+6]
-                print(codon)
-                tmp=AA2NA[NA2AA[codon]][:]
-                tmp.remove(codon) #remove the one causing restriction site
-                new_codon=tmp[0] #replace 
-                new_seq=seq[:x-n]+new_codon+seq[x-n+3:]
-                
-            break
-        
-        else:
-            continue 
-    
-    if new_seq:
-        return new_seq
-    else:
-        return None
+    for _ in range(max_passes):
+        #checks if we successfully removed any site in this round, if not stop early.
+        modified = False
+
+        for site in restriction_sites: 
+            #finds the first index where the site appears
+            idx = seq.find(site)
+            #if not found, skip and go to next one
+            if idx == -1: 
+                continue 
+
+            #try mutating one overlapping codon within the site window
+            for offset in range(len(site) -2): #slide window to find codon overlap
+                #this snaps to the nearest codon boundary (multiple of 3)
+                codon_start = (idx + offset) - ((idx + offset) % 3)
+                #exract a 3-letter codon starting at that position
+                codon = seq[codon_start:codon_start + 3]
+
+                #validate codon
+                if len(codon) != 3 or codon not in NA2AA: 
+                    continue #malformed codon or not standard, invalid or isn't in reverse mapping so skip it. 
+
+                #find the amino acid that the codon encodes
+                aa = NA2AA[codon]
+                #get all synonymous codons for that amino acid
+                synonyms = AA2NA[aa]
+
+                #skip if there are no alternatives e.g. TGG -> Tryptophan
+                if len(synonyms) <= 1:
+                    continue #no alternative codons for this AA
+
+                #try each alternative codon and construct a sequence with the substituted codon
+                for alt in synonyms: 
+                    if alt != codon: 
+                        #mutate codon and check if site is broken
+                        mutated_seq = seq[:codon_start] + alt + seq[codon_start + 3:]
+                        if site not in mutated_seq:
+                            seq = mutated_seq
+                            modified = True 
+                            break 
+
+                    if modified: 
+                        break #codon successfully mutated 
+                if modified: 
+                    break #move on to re-scan all sites 
+            if not modified:
+                break
+
+    return seq
             
 
 # ===== Main Loop =====
@@ -267,6 +290,8 @@ full_protein_duplicates_out = []
 tiles_with_x_out = []
 # detect duplicate tiles 
 duplicate_tiles_out = []
+#translation mismatches 
+translation_mismatches = []
 
 
 for record in SeqIO.parse(fasta_file, "fasta"):
@@ -302,7 +327,15 @@ for record in SeqIO.parse(fasta_file, "fasta"):
         na_seq = aa2na(peptide) #codon optimization
         na_seq_clean = replace_restriction_sites(na_seq) or na_seq
 
-        
+        #sanity check: translated sequences match original peptide
+        translated = str(Seq(na_seq_clean).translate())
+        if translated != peptide:
+            translation_mismatches.append((header, peptide, translated))
+            print(f"Translation mismatch for {header} - mutation may have broken reading frame or cause mis-translation")
+            print(f"original: {peptide}")
+            print(f"translated: {translated}")
+            #skip saving this tile!
+            continue 
 
         # Create SeqRecord, wraps the nucleotide sequence string into a Seq object. id = header means becomes the identifier in the FASTA, the part right after >. 
         #description=desc becomes the rest of the FASTA header line, holding metadata like protein name, virus, location etc. 
@@ -342,4 +375,5 @@ with open(output_duplicate_tiles, "w") as out_dup_tiles:
 print(f"Skipped {len(duplicate_tiles_out)} duplicate tiles written to '{output_duplicate_tiles}'")
 
 
-print(f"Skipped {duplicate_count} duplicate tiled peptides")
+with open(translation_mismatched_tiles, "w") as out_mismatch_tiles: 
+    SeqIO.write(translation_mismatches, out_mismatch_tiles, "fasta")
