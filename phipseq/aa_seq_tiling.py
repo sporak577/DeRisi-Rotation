@@ -1,7 +1,7 @@
 '''
 This script will read in a fasta file of protein sequences and
 1) deduplicate protein sequences (based on exact amino aicds)
-2) tile them to 46aa, with 23ß aa overlap
+2) tile them to 46aa, with 23 aa overlap
 3) filters out: 
     - peptides with invalid characters 
     - duplicate peptides (after tiling)
@@ -11,7 +11,8 @@ This script will read in a fasta file of protein sequences and
 7) validates that translated sequences match the original peptide
 8) writes outputs to multiple FASTA files: 
     - codon-optimized nucleotide tiles
-    - original peptide tiles
+    - 46 aa peptide tiles that have passed the following filters: no invalid characters, no duplicate tiles, 
+    codon optimization and restriction site removal successful, back-translation matches original peptide. saved to output_tiling. 
     - peptides with invalid characters
     - duplicate full length proteins
     - duplicate peptides (post-tiling)
@@ -361,7 +362,7 @@ for record in SeqIO.parse(fasta_file, "fasta"):
         # Create SeqRecord, wraps the nucleotide sequence string into a Seq object. id = header means becomes the identifier in the FASTA, the part right after >. 
         #description=desc becomes the rest of the FASTA header line, holding metadata like protein name, virus, location etc. 
         rec = SeqRecord(Seq(na_seq_clean), id=header, description=desc)
-        # Create amino acid FASTA entry (for validation), unprocessed
+        # Create amino acid FASTA entry (for validation)
         aa_rec = SeqRecord(Seq(peptide), id=header, description=desc) 
 
         records_out.append(rec)
