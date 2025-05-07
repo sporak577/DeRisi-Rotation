@@ -414,6 +414,13 @@ with open(translation_mismatched_tiles, "w") as out_mismatch_tiles:
     SeqIO.write(translation_mismatches, out_mismatch_tiles, "fasta")
 print(f"Skipped {len(translation_mismatches)} translation mismatched tiles written to '{translation_mismatches}'")
 
+with open(translation_mismatched_tiles, "w") as out_mismatch_tiles:
+    mismatched_records = [
+        SeqRecord(Seq(translated), id=header, description=f"{desc} | translation mismatch | original: {peptide}")
+        for header, peptide, translated in translation_mismatches
+    ]
+    SeqIO.write(mismatched_records, out_mismatch_tiles, "fasta")
+
 with open(output_unresolved_restriction, "w") as out_unresolved:
     SeqIO.write(unresolved_restriction_tiles, out_unresolved, "fasta")
 print(f"Excluded {len(unresolved_restriction_tiles)} tiles due to unresolved restriction sites. Written to '{output_unresolved_restriction}'")
