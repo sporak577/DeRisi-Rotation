@@ -199,11 +199,11 @@ for prot_id, intervals in coverage_map.items():
     prot_len = len(originals[prot_id])
     cumulative_coverage[prot_id] = round(total_covered / prot_len * 100, 2)
 
+for row in rows:
+    row["CumulativeCoverage"] = cumulative_coverage.get(row["ProteinID"], 0.0)
 
 # ----- STEP 5: EXPORT THE CSV SUMMARY -----
 df = pd.DataFrame(rows)
-for row in rows:
-    row["CumulativeCoverage"] = cumulative_coverage.get(row["ProteinID"], 0.0)
 df = df.sort_values(by="CumulativeCoverage", ascending=False) #sort by percent recovered, so essentially how much of the original protein got reconstructed
 os.makedirs(output_dir, exist_ok=True)
 df.to_csv(summary_output, index=False)
