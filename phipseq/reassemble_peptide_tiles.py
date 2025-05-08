@@ -26,6 +26,7 @@ Output:
     - Alignment identity
     - Recovery statistics
     - Cumulative coverage of the full protein
+- Figures (histograms) representing cumulativfe coverage and sequence identity
 """
 
 from Bio import SeqIO
@@ -213,7 +214,7 @@ print(f"summary written to {summary_output}")
 # ---- Histogram of Cumulative Coverage per Protein ----
 plt.figure(figsize=(8, 5))
 df.groupby("ProteinID")["CumulativeCoverage"].max().hist(bins=30, edgecolor='black')
-plt.title("Distribution of total protein coverage by reassembled fragments (tiles)")
+plt.title("Distribution of total protein coverage by reassembled fragments (from nt tiles)")
 plt.xlabel("Cumulative coverage per protein (%)")
 plt.ylabel("Number of proteins")
 plt.grid(True)
