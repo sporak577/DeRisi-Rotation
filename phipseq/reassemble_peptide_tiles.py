@@ -48,7 +48,7 @@ aligner.extend_gap_score = 0
 
 from itertools import chain
 
-date = "050725"
+date = "050825"
 
 # ----- INPUT FILES ------
 original_proteins_fasta = '/Users/sophieporak/Library/CloudStorage/Box-Box/DeRisi/0.94_final_library_protein_records.faa' #Full-length original protein sequences
@@ -86,6 +86,7 @@ for record in SeqIO.parse(input_nt_tiles, "fasta"):
     peptide = str(Seq(record.seq).translate())
 
     protein_tiles[protein_id].append((int(tile_num), peptide))
+
 
 # ----- STEP 2: REASSEMBLE PEPTIDE SEQUENCES FROM TILES -----
 reassembled_records = []
@@ -203,6 +204,18 @@ for prot_id, intervals in coverage_map.items():
 
 for row in rows:
     row["CumulativeCoverage"] = cumulative_coverage.get(row["ProteinID"], 0.0)
+
+
+# ----- write out unmatched tile proteins ----
+
+all_tile_proteins = set(protein_tiles.keys())
+matched_proteins = set(originals.keys())
+unmatched = all_tile_proteins - matched_proteins
+
+with open(os.path.join(output_dir, "unmatched_tile_proteins.txt"), "w") as f:
+    for pid in sorted(unmatched):
+        f.write(pid + "\n")
+print(f"Unmatched tile protein IDs written to unmatched_tile_proteins.txt")
 
 # ----- STEP 5: EXPORT THE CSV SUMMARY -----
 df = pd.DataFrame(rows)
