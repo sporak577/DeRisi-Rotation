@@ -218,7 +218,7 @@ plt.xlabel("Cumulative coverage per protein (%)")
 plt.ylabel("Number of proteins")
 plt.grid(True)
 plt.tight_layout()
-plt.savefig(os.path.join(output_dir, "cumulative_coverage_histogram.png"))
+plt.savefig(os.path.join(output_dir, "cumulative_coverage_histogram.png"), dpi=600)
 plt.close()
 
 # ---- Histogram of Fragment Percent Identity ----
@@ -229,7 +229,7 @@ plt.xlabel("Percent identity per fragment (tile) (%)")
 plt.ylabel("Number of fragments")
 plt.grid(True)
 plt.tight_layout()
-plt.savefig(os.path.join(output_dir, "percent_identity_histogram.png"))
+plt.savefig(os.path.join(output_dir, "percent_identity_histogram.png"), dpi=600)
 plt.close()
 
 print("Histograms saved to output directory.")
