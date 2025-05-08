@@ -22,6 +22,7 @@ output_file = f"/Users/sophieporak/Desktop/clusters_with_mixed_strains_{date}.cs
 
 # ----- STEP 1: PARSE METADATA FROM FASTA HEADERS   
 tile_to_metadata = {}
+malformed_records = []
 
 for record in SeqIO.parse(fasta_file, "fasta"):
     tile_id = record.id #e.g.WFG38034.1_1 from  >WFG38034.1_1 WFG38034.1 glycoprotein precursor|Aba-Mianyang virus|SC/C3-30.18/2021|Ochotona sp.|China|Aug-2021|S|?| | tile 1 of 23
@@ -51,6 +52,7 @@ for record in SeqIO.parse(fasta_file, "fasta"):
 
     except IndexError:
         print(f"Skipping malformed header: {desc}")
+        malformed_records.append(record)
         continue 
 
     tile_to_metadata[tile_id] = {
@@ -63,9 +65,18 @@ for record in SeqIO.parse(fasta_file, "fasta"):
         "protein_name": protein_name
     }
 
+if malformed_records:
+    malformed_output_file = f"/Users/sophieporak/Desktop/malformed_headers_{date}.fasta"
+    with open(malformed_output_file, "w") as f:
+        SeqIO.write(malformed_records, f, "fasta")
+    print(f"Saved {len(malformed_records)} malformed records to {malformed_output_file}")
+else:
+    print("No malformed records detected.")
+
 # ------ STEP2: PARSE CD-HIT .clstr file ------
 clusters = []
 current_cluster = []
+
 
 with open(clstr_file) as f:
     for line in f: 
