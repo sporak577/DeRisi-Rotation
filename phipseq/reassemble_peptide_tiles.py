@@ -23,13 +23,21 @@ Output:
 - a CSV summary file with one row per fragment, reporting identity and recovery statistics .
 """
 
-from Bio import SeqIO, pairwise2
+from Bio import SeqIO
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 import pandas as pd
 import re
 from collections import defaultdict
 import os
+
+from Bio import Align
+aligner = Align.PairwiseAligner()
+aligner.mode = 'global'  # mimics globalxx behavior
+aligner.match_score = 1
+aligner.mismatch_score = 0
+aligner.open_gap_score = 0
+aligner.extend_gap_score = 0
 
 date = "050725"
 
@@ -54,9 +62,18 @@ protein_tiles = defaultdict(list)
 for record in SeqIO.parse(input_nt_tiles, "fasta"):
     desc = record.description
     # exctract second column from e.g. >XRB79013.1_35_1 XRB79013.1_35 XRB79013.1 RNA-dependent RNA polymerase|Mammarenavirus wenzhouense|H2024-1|Mus musculus|China|2024|?|?| | tile 35 of 96 | tile 1 of 1_trimmed
-    fields = record.description.split()
-    protein_id = fields[0].split("_")[0]
-    tile_num = int(fields[1].split("_")[1])  # Extract tile number from 2nd field
+    header_main = record.id  # e.g. XRB79013.1_35_1
+    parts = header_main.split("_")
+
+    # Extract tile number safely
+    try:
+        tile_num = int(parts[-2])  # second-to-last part is always the tile number
+    except ValueError:
+        print(f"Could not extract tile number from: {record.id}")
+        continue
+
+    # Extract protein ID by joining everything before the tile number
+    protein_id = "_".join(parts[:-2])
     peptide = str(Seq(record.seq).translate())
 
     protein_tiles[protein_id].append((int(tile_num), peptide))
@@ -86,10 +103,12 @@ for protein_id, tiles in protein_tiles.items():
     for j, frag in enumerate(fragments):
         frag_id = f"{protein_id}_frag{j+1}"
         reassembled_records.append(
-            SeqRecord(Seq(frag), id=frag_id, description=f"Fragment {j+1} from {protein_id}")
+            SeqRecord(Seq(frag), id=frag_id, description=f"from {protein_id}")
         )
 
 # save reassembled proteins
+os.makedirs(os.path.dirname(reassembled_fasta), exist_ok=True)
+
 with open(reassembled_fasta, "w") as out_f:
     SeqIO.write(reassembled_records, out_f, "fasta")
 
@@ -109,19 +128,28 @@ for record in SeqIO.parse(reassembled_fasta, "fasta"):
     re_seq = str(record.seq)
     orig_seq = originals[protein_id]
 
-    # Align with globalxx (identity-based)
-    alignment = pairwise2.align.globalxx(orig_seq, re_seq, one_alignment_only=True)[0]
-    alignment_range = alignment[4] - alignment[3] #end - begin
-    overlap_recovered = alignment_range / len(orig_seq) * 100 
-    identity = alignment[2] / alignment[4] * 100 #matches / aligned length, number of exact amino acid matches over the length of alignment
-    recovered = len(re_seq) / len(orig_seq) * 100 #length of reassembled fragment vs original
+    # Align, with mismatch and gap = 0 
+    alignments = aligner.align(orig_seq, re_seq)
+    alignment = alignments[0] #regions on the original sequence
+
+    # Percent identity = exact matches / length of aligned region in fragment
+    identity = alignment.score / len(re_seq) * 100
+
+    # Extract alignment span on the original sequence
+    orig_spans = alignment.aligned[0]  # List of (start, end) tuples on original. each list contains (start, end) positions of aligned blocks (gaps can split them)
+    alignment_range = sum(end - start for start, end in orig_spans) #this gives me the total sum of the blocks that are aligned
+    overlap_recovered = alignment_range / len(orig_seq) * 100
+
+    # Recovery = length of fragment / length of full protein
+    recovered = len(re_seq) / len(orig_seq) * 100
+    
 
     rows.append({
         "FragmentID": frag_id,
         "ProteinID": protein_id,
         "OriginalLength": len(orig_seq),
         "FragmentLength": len(re_seq),
-        "PercentIdentity": round(identity, 2), 
+        "PercentIdentity": round(identity, 2), #number of matches / fragment length
         "PercentRecovered": round(recovered, 2), #how much did I reconstruct?
         "PercentOverlapRecovered": round(overlap_recovered, 2) #how much of the original protein did this fragment align to?
     })
