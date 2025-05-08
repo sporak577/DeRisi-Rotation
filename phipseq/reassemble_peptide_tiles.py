@@ -35,6 +35,7 @@ import pandas as pd
 import re
 from collections import defaultdict
 import os
+import matplotlib.pyplot as plt
 
 from Bio import Align
 aligner = Align.PairwiseAligner()
@@ -209,6 +210,26 @@ os.makedirs(output_dir, exist_ok=True)
 df.to_csv(summary_output, index=False)
 print(f"summary written to {summary_output}")
 
+# ---- Histogram of Cumulative Coverage per Protein ----
+plt.figure(figsize=(8, 5))
+df.groupby("ProteinID")["CumulativeCoverage"].max().hist(bins=30, edgecolor='black')
+plt.title("Distribution of total protein coverage by reassembled fragments (tiles)")
+plt.xlabel("Cumulative coverage per protein (%)")
+plt.ylabel("Number of proteins")
+plt.grid(True)
+plt.tight_layout()
+plt.savefig(os.path.join(output_dir, "cumulative_coverage_histogram.png"))
+plt.close()
 
+# ---- Histogram of Fragment Percent Identity ----
+plt.figure(figsize=(8, 5))
+df["PercentIdentity"].hist(bins=30, edgecolor='black')
+plt.title("Distribution of amino acid identity between fragments and reference")
+plt.xlabel("Percent identity per fragment (tile) (%)")
+plt.ylabel("Number of fragments")
+plt.grid(True)
+plt.tight_layout()
+plt.savefig(os.path.join(output_dir, "percent_identity_histogram.png"))
+plt.close()
 
-    
+print("Histograms saved to output directory.")
