@@ -15,12 +15,17 @@ Process:
   - align it to the corresponding full-length protein.
   - calculate the following metrics: 
     - percent identity: proportion of exact amino acid matches in the alignment. 
-    - pecent recovered: length of the reassembled fragment relative to the full original protein
+    - percent recovered: length of the reassembled fragment relative to the full original protein
     - percent overlap recovered: propoertion of the original protein sequence covered by the fragment
+    - percent recovered when summing over all fragments of one protein relative to the full original protein.
 
 Output:
 - a FASTA file of all reassembled fragments 
 - a CSV summary file with one row per fragment, reporting identity and recovery statistics .
+    - Fragment length 
+    - Alignment identity
+    - Recovery statistics
+    - Cumulative coverage of the full protein
 """
 
 from Bio import SeqIO
@@ -38,6 +43,8 @@ aligner.match_score = 1
 aligner.mismatch_score = 0
 aligner.open_gap_score = 0
 aligner.extend_gap_score = 0
+
+from itertools import chain
 
 date = "050725"
 
@@ -154,9 +161,50 @@ for record in SeqIO.parse(reassembled_fasta, "fasta"):
         "PercentOverlapRecovered": round(overlap_recovered, 2) #how much of the original protein did this fragment align to?
     })
 
+# ------ STEP 4b: CALCULATE CUMULATIVE COVERAGE PER PROTEIN --------
+coverage_map = defaultdict(list)
+
+# collect aligned spans for each protein
+for record in SeqIO.parse(reassembled_fasta, "fasta"):
+    frag_id = record.id
+    protein_id = frag_id.split("_frag")[0]
+
+    if protein_id not in originals: 
+        continue 
+
+    re_seq = str(record.seq)
+    orig_seq = originals[protein_id]
+    alignments = aligner.align(orig_seq, re_seq)
+    alignment = alignments[0]
+
+    for start, end in alignment.aligned[0]:
+        coverage_map[protein_id].append((start, end))
+
+# merge these intervals and compute coverage 
+def merge_intervals(intervals):
+    sorted_intervals = sorted(intervals)
+    merged = []
+    for current in sorted_intervals:
+        if not merged or current[0] > merged[-1][1]: #this checks if the current interval overlaps or touches the previous one, stored in merged[-1]. 
+            #if the start of the current interval is after the end of the last one in merged, there's no overlap so new block. 
+            merged.append(list(current))
+        else: 
+            merged[-1][1] = max(merged[-1][1], current[1])
+    return merged 
+
+cumulative_coverage = {}
+for prot_id, intervals in coverage_map.items():
+    merged = merge_intervals(intervals)
+    total_covered = sum(end - start for start, end in merged)
+    prot_len = len(originals[prot_id])
+    cumulative_coverage[prot_id] = round(total_covered / prot_len * 100, 2)
+
+
 # ----- STEP 5: EXPORT THE CSV SUMMARY -----
 df = pd.DataFrame(rows)
-df = df.sort_values(by="PercentRecovered", ascending=False) #sort by percent recovered, so essentially how much of the original protein got reconstructed
+for row in rows:
+    row["CumulativeCoverage"] = cumulative_coverage.get(row["ProteinID"], 0.0)
+df = df.sort_values(by="CumulativeCoverage", ascending=False) #sort by percent recovered, so essentially how much of the original protein got reconstructed
 os.makedirs(output_dir, exist_ok=True)
 df.to_csv(summary_output, index=False)
 print(f"summary written to {summary_output}")
