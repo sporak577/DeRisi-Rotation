@@ -37,8 +37,35 @@ def plot_pie(series, label, outname):
     plt.savefig(f"/Users/sophieporak/Desktop/{outname}_{date}.png", dpi = 300)
     plt.close()
 
+
 # Apply to different taxonomic levels
 plot_pie(df['tax_rank_7'], "Families", "virus_family_distribution_pie")
 plot_pie(df['tax_rank_8'], "Genera", "virus_genus_distribution_pie")
 plot_pie(df['organism'], "Strains", "virus_strain_distribution_pie")
 plot_pie(df['protein_name'], "Proteins", "virus_protein_distribution_pie")
+
+#filter for only mammarenavirus genus 
+df.columns = df.columns.str.strip()
+mammarenavirus_df = df[df['tax_rank_8'] == 'Mammarenavirus']
+
+print(mammarenavirus_df['protein_name'].value_counts())
+
+#normalizing synonymous protein names
+protein_rename_map = {
+    "L protein": "L protein",
+    "polymerase": "L protein",
+    "RNA-directed RNA polymerase": "L protein",
+    "RNA dependent-RNA polymerase": "L protein",
+    "L polymerase": "L protein",
+    "L": "L protein",
+    "large RNA-dependent RNA polymerase": "L protein",
+    "large RNA-dependent RNA polymerase protein ": "L protein",
+    "RNA dependent RNA polymerase": "L protein",
+    "polymerase RDRP": "L protein"
+}
+
+plot_pie(
+    mammarenavirus_df['protein_name'].replace(protein_rename_map),
+    "Proteins within Mammarenavirus genus",
+    "mammarenavirus_protein_tile_distribution_pie"
+)
