@@ -18,17 +18,17 @@ colors = cm.get_cmap('tab20').colors  # or 'Set3', 'Paired', etc.
 
 df = pd.read_csv('/Users/sophieporak/Library/CloudStorage/Box-Box/DeRisi/data processing/lib_data_AK_050725/0.96_tiling_out_nt_tiles_cp_cleaned_metadata_curated.csv')
 
-date = "050925.0.01"
+date = "050925.0xxx"
 
 # Function to make pie chart with 2% cutoff
 def plot_pie(series, label, outname):
     counts = series.value_counts() #index is the category and value is the count
     total = counts.sum() #total number of items (sum of all counts)
-    filtered = counts[counts / total >= 0.01] #filters counts to only keep labels that represent omore or equal 2% of total 
+    filtered = counts[counts / total >= 0.0001] #filters counts to only keep labels that represent omore or equal 2% of total 
     other_sum = total - filtered.sum()
     
     if other_sum > 0: #sums how many items were excluded
-        filtered["Other (<1%)"] = other_sum
+        filtered["Other (<xxx%)"] = other_sum
 
     plt.figure(figsize=(14, 14))
     plt.pie(filtered, labels=filtered.index, autopct='%1.1f%%', startangle=140, colors=colors[:len(filtered)], textprops={'fontsize': 15})
@@ -44,6 +44,9 @@ plot_pie(df['tax_rank_8'], "Genera", "virus_genus_distribution_pie")
 plot_pie(df['organism'], "Strains", "virus_strain_distribution_pie")
 plot_pie(df['protein_name'], "Proteins", "virus_protein_distribution_pie")
 
+
+# -------- Filtering only for Mammarenavirus genus --------
+
 #filter for only mammarenavirus genus 
 df.columns = df.columns.str.strip()
 mammarenavirus_df = df[df['tax_rank_8'] == 'Mammarenavirus']
@@ -56,10 +59,13 @@ protein_rename_map = {
     "polymerase": "L protein",
     "RNA-directed RNA polymerase": "L protein",
     "RNA dependent-RNA polymerase": "L protein",
+    "RNA-dependent RNA polymerase": "L protein",
     "L polymerase": "L protein",
     "L": "L protein",
+    "RNA-directed RNA polymerase L": "L protein",
+    "RNA polymerase": "L protein",
     "large RNA-dependent RNA polymerase": "L protein",
-    "large RNA-dependent RNA polymerase protein ": "L protein",
+    "large RNA-dependent RNA polymerase protein": "L protein",
     "RNA dependent RNA polymerase": "L protein",
     "polymerase RDRP": "L protein",
 
@@ -72,7 +78,9 @@ protein_rename_map = {
     "zinc finger protein": "Z protein",
     "zinc finger-like protein": "Z protein",
     "RING finger Z protein": "Z protein",
+    "zinc-binding protein": "Z protein",
     "multifunctional matrix-like protein": "Z protein",
+    "matrix protein": "Z protein",
 
     "glycoprotein precursor": "GPC",
     "glycoprotein": "GPC",
@@ -97,3 +105,19 @@ plot_pie(
     "Proteins within Mammarenavirus genus",
     "mammarenavirus_protein_tile_distribution_pie"
 )
+
+
+# -------- Filtering only for Mammarenavirus lassaense --------
+
+df.columns = df.columns.str.strip()
+mammarenavirus_df = df[df['organism'] == 'Mammarenavirus lassaense']
+
+print(mammarenavirus_df['protein_name'].value_counts())
+
+
+plot_pie(
+    mammarenavirus_df['protein_name'].replace(protein_rename_map),
+    "Proteins within Mammarenavirus lassaense",
+    "mammarenavirus_lassaense_protein_tile_distribution_pie"
+)
+
