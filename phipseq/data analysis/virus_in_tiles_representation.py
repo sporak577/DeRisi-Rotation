@@ -61,7 +61,35 @@ protein_rename_map = {
     "large RNA-dependent RNA polymerase": "L protein",
     "large RNA-dependent RNA polymerase protein ": "L protein",
     "RNA dependent RNA polymerase": "L protein",
-    "polymerase RDRP": "L protein"
+    "polymerase RDRP": "L protein",
+
+    "Z protein": "Z protein",
+    "Z-protein": "Z protein",
+    "RING finger protein Z": "Z protein",
+    "ring finger protein": "Z protein",
+    "small RING finger protein": "Z protein",
+    "zinc binding protein": "Z protein",
+    "zinc finger protein": "Z protein",
+    "zinc finger-like protein": "Z protein",
+    "RING finger Z protein": "Z protein",
+    "multifunctional matrix-like protein": "Z protein",
+
+    "glycoprotein precursor": "GPC",
+    "glycoprotein": "GPC",
+    "preglycoprotein polyprotein GP complex": "GPC",
+    "glycoprotein precursor complex": "GPC",
+    "Glycoprotein precursor": "GPC",
+    "glycoprotein G1+G2 precursor": "GPC",
+    "envelope glycoprotein": "GPC",
+    "GPC": "GPC",
+    "GP": "GPC",
+
+    "nucleocapsid protein": "NP",
+    "nucleoprotein": "NP",
+    "NP": "NP",
+    "nucleocapsid": "NP",
+    
+
 }
 
 plot_pie(
