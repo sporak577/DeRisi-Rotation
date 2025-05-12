@@ -18,7 +18,7 @@ colors = cm.get_cmap('tab20').colors  # or 'Set3', 'Paired', etc.
 
 df = pd.read_csv('/Users/sophieporak/Library/CloudStorage/Box-Box/DeRisi/data processing/lib_data_AK_050725/0.96_tiling_out_nt_tiles_cp_cleaned_metadata_curated.csv')
 
-date = "050925.0xxx"
+date = "051125.0001"
 
 # Function to make pie chart with 2% cutoff
 def plot_pie(series, label, outname):
@@ -69,6 +69,7 @@ protein_rename_map = {
     "RNA dependent RNA polymerase": "L protein",
     "polymerase RDRP": "L protein",
 
+    "hypothetical protein": "Z protein",
     "Z protein": "Z protein",
     "Z-protein": "Z protein",
     "RING finger protein Z": "Z protein",
