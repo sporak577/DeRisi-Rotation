@@ -18,57 +18,50 @@ colors = cm.get_cmap('tab20').colors  # or 'Set3', 'Paired', etc.
 
 df = pd.read_csv('/Users/sophieporak/Library/CloudStorage/Box-Box/DeRisi/data processing/lib_data_AK_050725/0.96_tiling_out_nt_tiles_cp_cleaned_metadata_curated.csv')
 
-date = "051225.0001"
+date = "051225.02"
 
-# Function to make pie chart with 2% cutoff
-def plot_pie(series, label, outname, weights=None):
+# Function to make pie chart with 3% cutoff
+"""
+series is a pandas seroies of category labels,
+label is a string used to plot title and file naming,
+outname is a filename stem for the output image,
+weights is optional series of numeric values,
+cutoff is the proportion threshold"""
+def plot_pie(series, label, outname, weights=None, cutoff=0.02):
     if weights is not None:
-        #group by category and sum weights 
+        # Group by category and for each group it sums the weights, here the tile counts. gives total count per category. 
         counts = series.groupby(series).apply(lambda x: weights.loc[x.index].sum())
-
-    else: 
-        #default to value counts
+    else:
         counts = series.value_counts()
-
+    #if no weights are provided is simply counts the number of times each category appears in the series
     total = counts.sum()
-    
-    filtered = counts[counts / total > 0.0001] #0.01% cutoff
-    other_sum = total - filtered.sum()
-
+    #calculates the total number of tiles (or total weigh)
+    filtered = counts[counts / total >= cutoff]  # e.g., 3% threshold, filters out all categories that contribute less than a specific cutoff
+    other_sum = total - filtered.sum() #calculates how many counts were excluded, will be added as a single other category
+    #if any values were excluded, add a new entry called Other (<2%) to the filtered results
     if other_sum > 0:
-        filtered["Other (<0.01%)"] = other_sum
+        filtered[f"Other (<{int(cutoff * 100)}%)"] = other_sum
 
-    plt.figure(figsize=(14,14))
+    plt.figure(figsize=(14, 14))
     plt.pie(
-        filtered, 
+        filtered,
         labels=filtered.index,
         autopct='%1.1f%%',
         startangle=140,
         colors=colors[:len(filtered)],
         textprops={'fontsize': 15}
-
     )
-
-
-    counts = series.value_counts() #index is the category and value is the count
-    total = counts.sum() #total number of items (sum of all counts)
-    filtered = counts[counts / total >= 0.0001] #filters counts to only keep labels that represent omore or equal 2% of total 
-    other_sum = total - filtered.sum()
-    
-    if other_sum > 0: #sums how many items were excluded
-        filtered["Other (<xxx%)"] = other_sum
-
     plt.title(f"Tile count representation of viral {label}", size=15)
     plt.tight_layout()
     plt.savefig(f"/Users/sophieporak/Desktop/{outname}_{date}.png", dpi=300)
     plt.close()
 
 
-# Apply to different taxonomic levels
-plot_pie(df['tax_rank_7'], "Families", "virus_family_distribution_pie")
-plot_pie(df['tax_rank_8'], "Genera", "virus_genus_distribution_pie")
-plot_pie(df['organism'], "Strains", "virus_strain_distribution_pie")
-plot_pie(df['protein_name'], "Proteins", "virus_protein_distribution_pie")
+# Apply to different taxonomic levels   
+plot_pie(df['tax_rank_7'], "Families", "virus_family_distribution_pie", weights=df['count'])
+plot_pie(df['tax_rank_8'], "Genera", "virus_genus_distribution_pie", weights=df['count'])
+plot_pie(df['organism'], "Strains", "virus_strain_distribution_pie", weights=df['count'])
+plot_pie(df['protein_name'], "Proteins", "virus_protein_distribution_pie", weights=df['count'])
 
 
 # -------- Filtering only for Mammarenavirus genus --------
