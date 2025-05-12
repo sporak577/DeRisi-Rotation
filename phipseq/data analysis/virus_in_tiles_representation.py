@@ -18,10 +18,38 @@ colors = cm.get_cmap('tab20').colors  # or 'Set3', 'Paired', etc.
 
 df = pd.read_csv('/Users/sophieporak/Library/CloudStorage/Box-Box/DeRisi/data processing/lib_data_AK_050725/0.96_tiling_out_nt_tiles_cp_cleaned_metadata_curated.csv')
 
-date = "051125.0001"
+date = "051225.0001"
 
 # Function to make pie chart with 2% cutoff
-def plot_pie(series, label, outname):
+def plot_pie(series, label, outname, weights=None):
+    if weights is not None:
+        #group by category and sum weights 
+        counts = series.groupby(series).apply(lambda x: weights.loc[x.index].sum())
+
+    else: 
+        #default to value counts
+        counts = series.value_counts()
+
+    total = counts.sum()
+    
+    filtered = counts[counts / total > 0.0001] #0.01% cutoff
+    other_sum = total - filtered.sum()
+
+    if other_sum > 0:
+        filtered["Other (<0.01%)"] = other_sum
+
+    plt.figure(figsize=(14,14))
+    plt.pie(
+        filtered, 
+        labels=filtered.index,
+        autopct='%1.1f%%',
+        startangle=140,
+        colors=colors[:len(filtered)],
+        textprops={'fontsize': 15}
+
+    )
+
+
     counts = series.value_counts() #index is the category and value is the count
     total = counts.sum() #total number of items (sum of all counts)
     filtered = counts[counts / total >= 0.0001] #filters counts to only keep labels that represent omore or equal 2% of total 
@@ -30,11 +58,9 @@ def plot_pie(series, label, outname):
     if other_sum > 0: #sums how many items were excluded
         filtered["Other (<xxx%)"] = other_sum
 
-    plt.figure(figsize=(14, 14))
-    plt.pie(filtered, labels=filtered.index, autopct='%1.1f%%', startangle=140, colors=colors[:len(filtered)], textprops={'fontsize': 15})
-    plt.title(f"Tile count representation of viral {label}", size = 15)
+    plt.title(f"Tile count representation of viral {label}", size=15)
     plt.tight_layout()
-    plt.savefig(f"/Users/sophieporak/Desktop/{outname}_{date}.png", dpi = 300)
+    plt.savefig(f"/Users/sophieporak/Desktop/{outname}_{date}.png", dpi=300)
     plt.close()
 
 
@@ -104,7 +130,8 @@ protein_rename_map = {
 plot_pie(
     mammarenavirus_df['protein_name'].replace(protein_rename_map),
     "Proteins within Mammarenavirus genus",
-    "mammarenavirus_protein_tile_distribution_pie"
+    "mammarenavirus_protein_tile_distribution_pie", 
+    weights=mammarenavirus_df['count']
 )
 
 
@@ -119,6 +146,7 @@ print(mammarenavirus_df['protein_name'].value_counts())
 plot_pie(
     mammarenavirus_df['protein_name'].replace(protein_rename_map),
     "Proteins within Mammarenavirus lassaense",
-    "mammarenavirus_lassaense_protein_tile_distribution_pie"
+    "mammarenavirus_lassaense_protein_tile_distribution_pie",
+    weights=mammarenavirus_df['count']
 )
 
