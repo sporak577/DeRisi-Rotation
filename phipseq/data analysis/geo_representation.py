@@ -4,7 +4,7 @@ import pycountry
 import plotly.express as px
 
 # 1. Load & clean
-df = pd.read_csv('/Users/sophieporak/Library/CloudStorage/Box-Box/DeRisi/data processing/lib_data_AK_050725/0.96_tiling_out_nt_tiles_cp_cleaned_metadata_curated.csv') #update with your toy/real dataframe here
+df = pd.read_csv('/Users/sophieporak/Library/CloudStorage/Box-Box/DeRisi/data processing/lib_data_AK-051225/0.96_tiling_out_nt_tiles_cp_cleaned_metadata_curated_v2.csv') #update with your toy/real dataframe here
 df["geo_loc_name"] = df["geo_loc_name"].replace("nan", np.nan)
 
 # 2. Ask user which column to facet by, and which values to include
@@ -24,11 +24,13 @@ print(f"\nKept {len(df)} rows matching {facet_col} ∈ {facet_vals}\n")
 def country_to_iso3(name):
     if pd.isna(name):
         return None
+    # Strip anything after colon, comma, or dash
+    name_clean = str(name).split(":")[0].split(",")[0].split("-")[0].strip()
     try:
-        return pycountry.countries.lookup(name).alpha_3
+        return pycountry.countries.lookup(name_clean).alpha_3
     except LookupError:
         return None
-
+    
 df["iso_alpha"] = df["geo_loc_name"].apply(country_to_iso3)
 df = df.dropna(subset=["iso_alpha"])
 
