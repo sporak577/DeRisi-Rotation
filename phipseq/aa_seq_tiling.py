@@ -34,12 +34,12 @@ import numpy as np
 import os 
 import random
 
-cd_hit_threshold = 0.96
+cd_hit_threshold = 'nocdhit'
 
-fasta_file = '/Users/sophieporak/Library/CloudStorage/Box-Box/DeRisi/cd-hit_0.96_on_0.94_aa_tiles_final_library/cd-hit_0.96_0.94_aa_tiles.fasta' #update path 
+fasta_file = '/Users/sophieporak/Library/CloudStorage/Box-Box/DeRisi/Zebrafish project/Re_ [Ext] Zebrafish Sequences/GCF_049306965.1_GRCz12tu_protein.faa' #update path 
 
 # path to output directory
-output_dir = '/Users/sophieporak/Desktop/cd-hit_0.96_0.94_final_library_protein_records_tiling_out_050625'
+output_dir = '/Users/sophieporak/Desktop/zebrafish_proteins_tiling_out_060525'
 
 #define nucleotide linkers
 five_prime = "GTGGTTGGTGCTGTAGGAGCA"
@@ -333,7 +333,13 @@ for record in SeqIO.parse(fasta_file, "fasta"):
 
         seen_peptides.add(peptide)
 
+        #save AA tile right here
+        aa_rec = SeqRecord(Seq(peptide), id=header, description=desc) 
+        aa_records_out.append(aa_rec)
+
         na_seq = aa2na(peptide) #codon optimization
+
+        # ----- now proceed to the nucleotide part ------
 
         #add linkers 
         na_seq_with_linkers = five_prime + na_seq + three_prime
@@ -362,11 +368,9 @@ for record in SeqIO.parse(fasta_file, "fasta"):
         # Create SeqRecord, wraps the nucleotide sequence string into a Seq object. id = header means becomes the identifier in the FASTA, the part right after >. 
         #description=desc becomes the rest of the FASTA header line, holding metadata like protein name, virus, location etc. 
         rec = SeqRecord(Seq(na_seq_clean), id=header, description=desc)
-        # Create amino acid FASTA entry (for validation)
-        aa_rec = SeqRecord(Seq(peptide), id=header, description=desc) 
 
         records_out.append(rec)
-        aa_records_out.append(aa_rec)
+        
 
         
 
@@ -392,7 +396,7 @@ print(f"Done! {len(records_out)} unique tiles written to '{output_fasta}'")
 with open(output_tiling, "w") as out_aa:
     SeqIO.write(aa_records_out, out_aa, "fasta")
 
-print(f"Done! {len(aa_records_out)} unique tiles written to '{output_tiling}'")
+print(f"Done! {len(aa_records_out)} unique aa tiles written to '{output_tiling}'")
 
 with open(output_duplicate_proteins, "w") as out_dup_prots:
     SeqIO.write(full_protein_duplicates_out, out_dup_prots, "fasta")
