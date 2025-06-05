@@ -337,9 +337,9 @@ for record in SeqIO.parse(fasta_file, "fasta"):
         aa_rec = SeqRecord(Seq(peptide), id=header, description=desc) 
         aa_records_out.append(aa_rec)
 
-        na_seq = aa2na(peptide) #codon optimization
-
         # ----- now proceed to the nucleotide part ------
+
+        na_seq = aa2na(peptide) #codon optimization
 
         #add linkers 
         na_seq_with_linkers = five_prime + na_seq + three_prime
