@@ -18,11 +18,12 @@ with open(input_fasta) as f:
         if line.startswith(">"):
             if seq_id and sequence:
                 aa_seq = str(Seq(sequence).translate(to_stop=True))
-                records.append([index, seq_id, ref_seq_id, protein_description, virus_name, aa_seq])
+                fragment_number = seq_id.split("_")[1] if len(seq_id.split("_")) > 1 else ""
+                records.append([index, seq_id, ref_seq_id, fragment_number, protein_description, virus_name, aa_seq])
                 index += 1
 
             parts = line[1:].split()
-            seq_id = parts[0]         # Keep original FASTA ID, e.g. WFG38034.1_3_1
+            seq_id = parts[0]         # e.g. WFG38034.1_3_1
             ref_seq_id = parts[2]     # e.g. WFG38034.1
 
             # Extract description and virus info
@@ -37,12 +38,13 @@ with open(input_fasta) as f:
     # Final record
     if seq_id and sequence:
         aa_seq = str(Seq(sequence).translate(to_stop=True))
-        records.append([index, seq_id, ref_seq_id, protein_description, virus_name, aa_seq])
+        fragment_number = seq_id.split("_")[1] if len(seq_id.split("_")) > 1 else ""
+        records.append([index, seq_id, ref_seq_id, fragment_number, protein_description, virus_name, aa_seq])
 
 # Write CSV
 with open(output_csv, "w", newline="") as out:
     writer = csv.writer(out)
-    writer.writerow(["index", "seq_id", "ref_seq_id", "protein_description", "virus_name", "amino_acid_sequence"])
+    writer.writerow(["index", "seq_id", "ref_seq_id", "fragment_number", "protein_description", "virus_name", "amino_acid_sequence"])
     writer.writerows(records)
 
 print(f"Saved to {output_csv}")
