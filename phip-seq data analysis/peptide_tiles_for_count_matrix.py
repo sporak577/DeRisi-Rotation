@@ -17,29 +17,29 @@ with open(input_fasta) as f:
         line = line.strip()
         if line.startswith(">"):
             if seq_id and sequence:
-                # Translate nucleotide sequence to protein
                 aa_seq = str(Seq(sequence).translate(to_stop=True))
                 records.append([index, seq_id, ref_seq_id, protein_description, virus_name, aa_seq])
                 index += 1
-            parts = line[1:].split()
-            seq_id = parts[0]
-            ref_seq_id = parts[2]
 
-            # Rebuild the description and parse fields
+            parts = line[1:].split()
+            seq_id = parts[0]         # Keep original FASTA ID, e.g. WFG38034.1_3_1
+            ref_seq_id = parts[2]     # e.g. WFG38034.1
+
+            # Extract description and virus info
             description = " ".join(parts[3:])
             fields = description.split("|")
-            protein_description = fields[0].strip() if len(fields) > 0 else "" #removing any leading and trailing whitespace
+            protein_description = fields[0].strip() if len(fields) > 0 else ""
             virus_name = fields[1].strip() if len(fields) > 1 else ""
             sequence = ""
         else:
             sequence += line
 
-    # Add the last record
+    # Final record
     if seq_id and sequence:
         aa_seq = str(Seq(sequence).translate(to_stop=True))
         records.append([index, seq_id, ref_seq_id, protein_description, virus_name, aa_seq])
 
-# Write to CSV
+# Write CSV
 with open(output_csv, "w", newline="") as out:
     writer = csv.writer(out)
     writer.writerow(["index", "seq_id", "ref_seq_id", "protein_description", "virus_name", "amino_acid_sequence"])
