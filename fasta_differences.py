@@ -1,7 +1,7 @@
 from Bio import SeqIO
 
-file1 = '/Users/sophieporak/Library/CloudStorage/Box-Box/DeRisi/0.94_final_library_protein_records_tiling_out/0.94_tiling_out_aa_preprocess_tiles.fasta'
-file2 = "/Users/sophieporak/Library/CloudStorage/Box-Box/DeRisi/cd-hit_0.94_final_library_peptide_records_tiling_out/0.94_tiling_out_aa_preprocess_tiles.fasta"
+file1 = 'file_1.fasta'
+file2 = "file_2.fasta"
 output_file = "unique_sequences_by_sequence_only.fasta"
 
 # Load all sequences from file2 into a set
