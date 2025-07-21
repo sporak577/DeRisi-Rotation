@@ -10,8 +10,8 @@ from operator import itemgetter
 print("Biopython works!")
 
 # === Settings ===
-input_file = "/Users/sophieporak/Library/CloudStorage/Box-Box/DeRisi/Arenavirus/20250424/arenaviridae_042425.gp"
-output_file = "arenaviridae_042425_gb.fasta"
+input_file = "genpept_file.gp"
+output_file = "fasta_file.fasta"
 
 # === Collect all entries first ===
 entries = []
