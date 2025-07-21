@@ -36,10 +36,10 @@ import random
 
 cd_hit_threshold = 'nocdhit'
 
-fasta_file = '/Users/sophieporak/Library/CloudStorage/Box-Box/DeRisi/Zebrafish project/Re_ [Ext] Zebrafish Sequences/GCF_049306965.1_GRCz12tu_protein.faa' #update path 
+fasta_file = 'protein.faa' #update path 
 
 # path to output directory
-output_dir = '/Users/sophieporak/Desktop/zebrafish_proteins_tiling_out_060525'
+output_dir = 'proteins_tiling_out_060525'
 
 #define nucleotide linkers
 five_prime = "GTGGTTGGTGCTGTAGGAGCA"
