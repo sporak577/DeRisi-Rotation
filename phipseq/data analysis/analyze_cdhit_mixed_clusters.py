@@ -16,9 +16,9 @@ from Bio import SeqIO
 
 # ----- Required Inputs -----
 date = "050825"
-fasta_file = "/Users/sophieporak/Library/CloudStorage/Box-Box/DeRisi/FINAL LIBRARY ORDERED/files used/0.94_tiling_out_aa_preprocess_tiles.fasta"
-clstr_file = '/Users/sophieporak/Library/CloudStorage/Box-Box/DeRisi/FINAL LIBRARY ORDERED/files used/cd-hit_0.96_0.94_aa_tiles.fasta.clstr'
-output_file = f"/Users/sophieporak/Desktop/clusters_with_mixed_strains_{date}.csv"
+fasta_file = "preprocessed_fasta.fasta"
+clstr_file = 'clustered.fasta.clstr'
+output_file = f"clusters_with_mixed_strains_{date}.csv"
 
 # ----- STEP 1: PARSE METADATA FROM FASTA HEADERS   
 tile_to_metadata = {}
