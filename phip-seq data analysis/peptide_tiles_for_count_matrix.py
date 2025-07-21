@@ -4,7 +4,7 @@ Authors: ChatGPT & Sophie-Christine Porak
 import csv
 from Bio.Seq import Seq
 
-input_fasta = '/Users/sophieporak/Library/CloudStorage/Box-Box/DeRisi/lassa fever project/FINAL LIBRARY ORDERED/0.96_tiling_out_nt_tiles_cp_cleaned_no_linkers.fasta'
+input_fasta = 'your_file'
 output_csv = "parsed_tiles_with_translation.csv"
 
 records = []
