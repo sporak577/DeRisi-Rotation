@@ -17,7 +17,7 @@ import math
 import csv
 import matplotlib.pyplot as plt
 
-input_file = '/Users/sophieporak/Library/CloudStorage/Box-Box/DeRisi/Arenavirus/20250428/0.94_txid11617[Organism:exp]_042528_tiling_out/0.94_tiling_out_nt_tiles.fasta'
+input_file = '0.94_tiling_out_nt_tiles.fasta'
 looking_at_which_viruses = "46aa_tiles_0.94_arenaviridae"
 looking_at_nt_or_aa = "nucleotides"
 date = "05-02-25"
