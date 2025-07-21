@@ -1,7 +1,7 @@
 from Bio import SeqIO
 
-input_file = '/Users/sophieporak/Library/CloudStorage/Box-Box/DeRisi/data processing/alignment : tree/0.96_tiling_out_nt_tiles_cp_cleaned_no_linkers_recordID_and_tile_number_only_aligned.fasta'
-output_file = "/Users/sophieporak/Desktop/aligned_unique_headers_051225.fasta"
+input_file = 'fasta.fasta'
+output_file = "unique_headers_output.fasta"
 
 seen = {}
 with open(output_file, "w") as out:
