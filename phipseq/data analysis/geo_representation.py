@@ -4,7 +4,7 @@ import pycountry
 import plotly.express as px
 
 # 1. Load & clean
-df = pd.read_csv('/Users/sophieporak/Library/CloudStorage/Box-Box/DeRisi/data processing/lib_data_AK-051225/0.96_tiling_out_nt_tiles_cp_cleaned_metadata_curated_v2.csv') #update with your toy/real dataframe here
+df = pd.read_csv('file.csv') #update with your toy/real dataframe here
 df["geo_loc_name"] = df["geo_loc_name"].replace("nan", np.nan)
 
 # 2. Ask user which column to facet by, and which values to include
