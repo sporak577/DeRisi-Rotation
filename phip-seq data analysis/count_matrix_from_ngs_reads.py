@@ -6,7 +6,7 @@ import pandas as pd
 from glob import glob
 
 # === Set your directory path ===
-data_dir = '/Users/sophieporak/Desktop/downloads'
+data_dir = 'your_directory'
 file_paths = glob(os.path.join(data_dir, "*.csv"))  # change to *.tsv if needed
 
 # === Initialize empty list for dataframes ===
