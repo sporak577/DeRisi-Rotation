@@ -6,7 +6,7 @@ import matplotlib.pyplot as plt
 import seaborn as sns 
 
 # set paths 
-csv_file = '/Users/sophieporak/Library/CloudStorage/Box-Box/DeRisi/data processing/clusters_with_mixed_strains_050825.csv'
+csv_file = 'clusters_with_mixed_strains_050825.csv'
 
 #load cluster summary 
 df = pd.read_csv(csv_file)
