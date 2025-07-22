@@ -51,9 +51,9 @@ from itertools import chain
 date = "050825"
 
 # ----- INPUT FILES ------
-original_proteins_fasta = '/Users/sophieporak/Library/CloudStorage/Box-Box/DeRisi/0.94_final_library_protein_records.faa' #Full-length original protein sequences
-input_nt_tiles = "/Users/sophieporak/Library/CloudStorage/Box-Box/DeRisi/FINAL LIBRARY ORDERED/0.96_tiling_out_nt_tiles_cp_cleaned_no_linkers.fasta"
-output_dir = f'/Users/sophieporak/Desktop/reassembly_output_{date}'
+original_proteins_fasta = '0.94_final_library_protein_records.faa' #Full-length original protein sequences
+input_nt_tiles = "0.96_tiling_out_nt_tiles_cp_cleaned_no_linkers.fasta"
+output_dir = f'reassembly_output_{date}'
 
 # ----- OUTPUT FILES -----
 reassembled_fasta = os.path.join(output_dir, "reassembled_proteins.fasta")
